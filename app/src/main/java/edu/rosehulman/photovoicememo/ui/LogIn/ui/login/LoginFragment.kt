@@ -15,9 +15,9 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
-import edu.rosehulman.photovoicememo.ui.LogIn.databinding.FragmentLoginBinding
+import edu.rosehulman.photovoicememo.R
+import edu.rosehulman.photovoicememo.databinding.FragmentLoginBinding
 
-import edu.rosehulman.photovoicememo.ui.LogIn.R
 
 class LoginFragment : Fragment() {
 

@@ -4,10 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import android.util.Patterns
+import edu.rosehulman.photovoicememo.R
 import edu.rosehulman.photovoicememo.ui.LogIn.data.LoginRepository
 import edu.rosehulman.photovoicememo.ui.LogIn.data.Result
 
-import edu.rosehulman.photovoicememo.ui.LogIn.R
 
 class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel() {
 
