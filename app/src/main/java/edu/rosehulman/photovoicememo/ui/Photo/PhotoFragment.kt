@@ -56,7 +56,7 @@ class PhotoFragment : Fragment() {
     }
 
     class TransformAdapter :
-        ListAdapter<String, TransformViewHolder>(object : DiffUtil.ItemCallback<String>() {
+        ListAdapter<String, PhotoViewHolder>(object : DiffUtil.ItemCallback<String>() {
 
             override fun areItemsTheSame(oldItem: String, newItem: String): Boolean =
                 oldItem == newItem
@@ -84,12 +84,12 @@ class PhotoFragment : Fragment() {
             R.drawable.avatar_16,
         )
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransformViewHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoViewHolder {
             val binding = ItemTransformBinding.inflate(LayoutInflater.from(parent.context))
-            return TransformViewHolder(binding)
+            return PhotoViewHolder(binding)
         }
 
-        override fun onBindViewHolder(holder: TransformViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: PhotoViewHolder, position: Int) {
             holder.textView.text = getItem(position)
             holder.imageView.setImageDrawable(
                 ResourcesCompat.getDrawable(holder.imageView.resources, drawables[position], null)
@@ -97,7 +97,7 @@ class PhotoFragment : Fragment() {
         }
     }
 
-    class TransformViewHolder(binding: ItemTransformBinding) :
+    class PhotoViewHolder(binding: ItemTransformBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         val imageView: ImageView = binding.imageViewItemTransform
