@@ -11,7 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import edu.rosehulman.photovoicememo.R
 import edu.rosehulman.photovoicememo.databinding.FragmentReflowBinding
 
-class ReflowFragment : Fragment() {
+class CameraFragment : Fragment() {
 
     private lateinit var reflowViewModel: ReflowViewModel
     private var _binding: FragmentReflowBinding? = null

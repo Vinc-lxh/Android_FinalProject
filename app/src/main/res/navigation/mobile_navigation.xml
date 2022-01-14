@@ -6,21 +6,21 @@
     app:startDestination="@+id/nav_login">
 
     <fragment
-        android:id="@+id/nav_transform"
-        android:name="edu.rosehulman.photovoicememo.ui.transform.TransformFragment"
-        android:label="@string/menu_transform"
+        android:id="@+id/nav_album"
+        android:name="edu.rosehulman.photovoicememo.ui.transform.AlbumFragment"
+        android:label="@string/menu_camera"
         tools:layout="@layout/fragment_transform" />
 
     <fragment
-        android:id="@+id/nav_reflow"
-        android:name="edu.rosehulman.photovoicememo.ui.reflow.ReflowFragment"
-        android:label="@string/menu_reflow"
+        android:id="@+id/nav_camera"
+        android:name="edu.rosehulman.photovoicememo.ui.reflow.CameraFragment"
+        android:label="@string/menu_album"
         tools:layout="@layout/fragment_reflow" />
 
     <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="edu.rosehulman.photovoicememo.ui.slideshow.SlideshowFragment"
-        android:label="@string/menu_slideshow"
+        android:id="@+id/nav_profile"
+        android:name="edu.rosehulman.photovoicememo.ui.slideshow.ProfileFragment"
+        android:label="@string/menu_profile"
         tools:layout="@layout/fragment_slideshow" />
 
     <fragment

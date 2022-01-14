@@ -11,7 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import edu.rosehulman.photovoicememo.R
 import edu.rosehulman.photovoicememo.databinding.FragmentSlideshowBinding
 
-class SlideshowFragment : Fragment() {
+class ProfileFragment : Fragment() {
 
     private lateinit var slideshowViewModel: SlideshowViewModel
     private var _binding: FragmentSlideshowBinding? = null

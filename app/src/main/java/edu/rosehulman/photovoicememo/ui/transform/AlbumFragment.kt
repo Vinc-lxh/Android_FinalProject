@@ -22,7 +22,7 @@ import edu.rosehulman.photovoicememo.databinding.ItemTransformBinding
  * the [RecyclerView] using LinearLayoutManager in a small screen
  * and shows items using GridLayoutManager in a large screen.
  */
-class TransformFragment : Fragment() {
+class AlbumFragment : Fragment() {
 
     private lateinit var transformViewModel: TransformViewModel
     private var _binding: FragmentTransformBinding? = null
