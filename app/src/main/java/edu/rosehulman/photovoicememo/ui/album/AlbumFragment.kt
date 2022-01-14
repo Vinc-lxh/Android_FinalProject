@@ -10,11 +10,13 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import edu.rosehulman.photovoicememo.R
 import edu.rosehulman.photovoicememo.databinding.FragmentAlbumBinding
-import edu.rosehulman.photovoicememo.databinding.ItemTransformBinding
+import edu.rosehulman.photovoicememo.databinding.AlbumItemTransformBinding
+
 
 /**
  * Fragment that demonstrates a responsive layout pattern where the format of the content
@@ -24,7 +26,7 @@ import edu.rosehulman.photovoicememo.databinding.ItemTransformBinding
  */
 class AlbumFragment : Fragment() {
 
-    private lateinit var transformViewModel: AlbumViewModel
+    private lateinit var model: AlbumViewModel
     private var _binding: FragmentAlbumBinding? = null
 
     // This property is only valid between onCreateView and
@@ -36,14 +38,15 @@ class AlbumFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        transformViewModel = ViewModelProvider(this).get(AlbumViewModel::class.java)
+        model = ViewModelProvider(this).get(AlbumViewModel::class.java)
         _binding = FragmentAlbumBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val recyclerView = binding.recyclerviewTransform
-        val adapter = TransformAdapter()
-        recyclerView.adapter = adapter
-        transformViewModel.texts.observe(viewLifecycleOwner, {
+        val recyclerView = binding.recyclerViewAlbum
+        val adapter = AlbumAdapter()
+        recyclerView?.adapter = adapter
+        recyclerView?.layoutManager =  GridLayoutManager(requireContext(),2)
+        model.texts.observe(viewLifecycleOwner, {
             adapter.submitList(it)
         })
         return root
@@ -54,7 +57,7 @@ class AlbumFragment : Fragment() {
         _binding = null
     }
 
-    class TransformAdapter :
+    class AlbumAdapter :
         ListAdapter<String, TransformViewHolder>(object : DiffUtil.ItemCallback<String>() {
 
             override fun areItemsTheSame(oldItem: String, newItem: String): Boolean =
@@ -84,7 +87,7 @@ class AlbumFragment : Fragment() {
         )
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransformViewHolder {
-            val binding = ItemTransformBinding.inflate(LayoutInflater.from(parent.context))
+            val binding = AlbumItemTransformBinding.inflate(LayoutInflater.from(parent.context))
             return TransformViewHolder(binding)
         }
 
@@ -96,10 +99,10 @@ class AlbumFragment : Fragment() {
         }
     }
 
-    class TransformViewHolder(binding: ItemTransformBinding) :
+    class TransformViewHolder(binding: AlbumItemTransformBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        val imageView: ImageView = binding.imageViewItemTransform
-        val textView: TextView = binding.textViewItemTransform
+        val imageView: ImageView = binding.thumbnailView
+        val textView: TextView = binding.captionDetail
     }
 }
