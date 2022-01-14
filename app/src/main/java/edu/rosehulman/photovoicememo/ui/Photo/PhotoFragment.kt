@@ -9,53 +9,39 @@ import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.navOptions
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import edu.rosehulman.photovoicememo.R
 import edu.rosehulman.photovoicememo.databinding.FragmentPhotoBinding
-import edu.rosehulman.photovoicememo.databinding.ItemTransformBinding
 
 
-/**
- * Fragment that demonstrates a responsive layout pattern where the format of the content
- * transforms depending on the size of the screen. Specifically this Fragment shows items in
- * the [RecyclerView] using LinearLayoutManager in a small screen
- * and shows items using GridLayoutManager in a large screen.
- */
 class PhotoFragment : Fragment() {
 
-    private lateinit var transformViewModel: PhotoViewModel
-    private var _binding: FragmentPhotoBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
+    private lateinit var model: PhotoViewModel
+    private lateinit var binding: FragmentPhotoBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        transformViewModel = ViewModelProvider(this).get(PhotoViewModel::class.java)
-        _binding = FragmentPhotoBinding.inflate(inflater, container, false)
-        val root: View = binding.root
+        model = ViewModelProvider(this).get(PhotoViewModel::class.java)
+        binding = FragmentPhotoBinding.inflate(inflater, container, false)
 
-        val recyclerView = binding.recyclerviewTransform
-        val adapter = TransformAdapter()
+        val recyclerView = binding.recyclerviewPhoto
+        val adapter = PhotoAdapter(this)
         recyclerView.adapter = adapter
-        transformViewModel.texts.observe(viewLifecycleOwner, {
+        model.texts.observe(viewLifecycleOwner, {
             adapter.submitList(it)
         })
-        return root
+        return binding.root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 
-    class TransformAdapter :
+    class PhotoAdapter(val fragment: PhotoFragment) :
         ListAdapter<String, PhotoViewHolder>(object : DiffUtil.ItemCallback<String>() {
 
             override fun areItemsTheSame(oldItem: String, newItem: String): Boolean =
@@ -85,8 +71,9 @@ class PhotoFragment : Fragment() {
         )
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoViewHolder {
-            val binding = ItemTransformBinding.inflate(LayoutInflater.from(parent.context))
-            return PhotoViewHolder(binding)
+
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_transform,parent,false)
+            return PhotoViewHolder(view, fragment)
         }
 
         override fun onBindViewHolder(holder: PhotoViewHolder, position: Int) {
@@ -97,10 +84,25 @@ class PhotoFragment : Fragment() {
         }
     }
 
-    class PhotoViewHolder(binding: ItemTransformBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+    class PhotoViewHolder(itemView: View, fragment: PhotoFragment) :RecyclerView.ViewHolder(itemView) {
 
-        val imageView: ImageView = binding.imageViewItemTransform
-        val textView: TextView = binding.textViewItemTransform
+        val imageView: ImageView = itemView.findViewById(R.id.image_view_item_transform)
+        val textView: TextView = itemView.findViewById(R.id.text_view_item_transform)
+
+        init {
+            itemView.setOnClickListener {
+                fragment.findNavController().navigate(R.id.nav_photo_detail,
+                    null,
+                    navOptions {
+                        anim {
+                            enter = android.R.anim.slide_in_left
+                            exit = android.R.anim.slide_out_right
+                        }
+                    }
+                )
+            }
+
+        }
     }
+
 }

@@ -17,7 +17,7 @@
     <ImageView
         android:id="@+id/photo_detail_view"
         android:layout_width="match_parent"
-        android:layout_height="600dp"
+        android:layout_height="match_parent"
         android:layout_alignParentTop="true"
         android:layout_centerVertical="true"
         android:layout_marginTop="3dp"
@@ -29,21 +29,23 @@
         android:id="@+id/caption_detail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/photo_detail_view"
+        android:layout_above="@+id/play_fab"
         android:layout_centerHorizontal="true"
         android:text="@string/date_edit_text_hint"
+        android:layout_marginBottom="8dp"
         android:textSize="28sp"
        />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/add_fab"
+        android:id="@+id/play_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/caption_detail"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:layout_centerHorizontal="true"
         android:backgroundTint="@color/ins_pink"
         android:src="@android:drawable/ic_media_play"
-        tools:ignore="ContentDescription"
-
-        android:layout_centerHorizontal="true"/>
+        />
 
 
 </RelativeLayout>

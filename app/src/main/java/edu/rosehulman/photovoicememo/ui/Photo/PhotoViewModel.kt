@@ -13,4 +13,8 @@ class PhotoViewModel : ViewModel() {
     }
 
     val texts: LiveData<List<String>> = _texts
+
+
+
+
 }
