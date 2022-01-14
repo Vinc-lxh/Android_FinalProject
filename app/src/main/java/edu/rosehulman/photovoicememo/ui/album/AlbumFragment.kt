@@ -9,13 +9,14 @@ import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.navOptions
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import edu.rosehulman.photovoicememo.R
 import edu.rosehulman.photovoicememo.databinding.FragmentAlbumBinding
-import edu.rosehulman.photovoicememo.databinding.AlbumItemTransformBinding
 
 
 /**
@@ -27,11 +28,8 @@ import edu.rosehulman.photovoicememo.databinding.AlbumItemTransformBinding
 class AlbumFragment : Fragment() {
 
     private lateinit var model: AlbumViewModel
-    private var _binding: FragmentAlbumBinding? = null
+    private lateinit var binding: FragmentAlbumBinding
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,26 +37,23 @@ class AlbumFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         model = ViewModelProvider(this).get(AlbumViewModel::class.java)
-        _binding = FragmentAlbumBinding.inflate(inflater, container, false)
-        val root: View = binding.root
+        binding = FragmentAlbumBinding.inflate(inflater, container, false)
+//        val root: View = binding.root
 
         val recyclerView = binding.recyclerViewAlbum
-        val adapter = AlbumAdapter()
+        val adapter = AlbumAdapter(this)
         recyclerView?.adapter = adapter
         recyclerView?.layoutManager =  GridLayoutManager(requireContext(),2)
         model.texts.observe(viewLifecycleOwner, {
             adapter.submitList(it)
         })
-        return root
+        return binding.root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 
-    class AlbumAdapter :
-        ListAdapter<String, TransformViewHolder>(object : DiffUtil.ItemCallback<String>() {
+
+    class AlbumAdapter(val fragment: AlbumFragment) :
+        ListAdapter<String, AlbumViewHolder>(object : DiffUtil.ItemCallback<String>() {
 
             override fun areItemsTheSame(oldItem: String, newItem: String): Boolean =
                 oldItem == newItem
@@ -86,23 +81,43 @@ class AlbumFragment : Fragment() {
             R.drawable.avatar_16,
         )
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransformViewHolder {
-            val binding = AlbumItemTransformBinding.inflate(LayoutInflater.from(parent.context))
-            return TransformViewHolder(binding)
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumViewHolder {
+            //val view = AlbumItemTransformBinding.inflate(LayoutInflater.from(parent.context))
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.album_item_transform,parent,false)
+            return AlbumViewHolder(view,fragment)
         }
 
-        override fun onBindViewHolder(holder: TransformViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: AlbumViewHolder, position: Int) {
             holder.textView.text = getItem(position)
             holder.imageView.setImageDrawable(
                 ResourcesCompat.getDrawable(holder.imageView.resources, drawables[position], null)
             )
         }
+
+        }
     }
 
-    class TransformViewHolder(binding: AlbumItemTransformBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+//     class AlbumViewHolder(binding: AlbumItemTransformBinding) : RecyclerView.ViewHolder(binding.root) {
+class AlbumViewHolder(itemView: View, fragment: AlbumFragment) : RecyclerView.ViewHolder(itemView) {
 
-        val imageView: ImageView = binding.thumbnailView
-        val textView: TextView = binding.captionDetail
+    val imageView: ImageView =itemView.findViewById(R.id.thumbnail_view)
+    val textView: TextView = itemView.findViewById(R.id.caption_detail)
+
+    init {
+             itemView.setOnClickListener{
+                 fragment.findNavController().navigate(R.id.nav_photo,
+                     null,
+                     navOptions{
+                         anim{
+                             enter = android.R.anim.slide_in_left
+                             exit = android.R.anim.slide_out_right
+                         }
+                     }
+                 )
+             }
+
     }
+
+
+
 }

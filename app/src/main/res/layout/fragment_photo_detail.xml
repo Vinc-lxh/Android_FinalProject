@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.Photo.PhotoDetailFragment">
+
+    <!--    <ImageView-->
+<!--        android:id="@+id/photo_icon"-->
+<!--        android:layout_width="24dp"-->
+<!--        android:layout_height="24dp"-->
+<!--        android:layout_below="@+id/caption_detail"-->
+<!--        android:layout_centerInParent="true"-->
+<!--        android:backgroundTint="@color/ins_pink"-->
+<!--        android:src="@drawable/ic_baseline_play_circle_filled_24" />-->
+
+    <ImageView
+        android:id="@+id/photo_detail_view"
+        android:layout_width="match_parent"
+        android:layout_height="600dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="3dp"
+        android:contentDescription="Image"
+        android:scaleType="centerInside"
+        android:src="@drawable/avatar_10" />
+
+    <TextView
+        android:id="@+id/caption_detail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/photo_detail_view"
+        android:layout_centerHorizontal="true"
+        android:text="@string/date_edit_text_hint"
+        android:textSize="28sp"
+       />
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/caption_detail"
+        android:backgroundTint="@color/ins_pink"
+        android:src="@android:drawable/ic_media_play"
+        tools:ignore="ContentDescription"
+
+        android:layout_centerHorizontal="true"/>
+
+
+</RelativeLayout>

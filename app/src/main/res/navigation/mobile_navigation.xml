@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_album">
+    app:startDestination="@+id/nav_photo">
 
     <fragment
         android:id="@+id/nav_album"
@@ -16,6 +16,12 @@
         android:name="edu.rosehulman.photovoicememo.ui.Photo.PhotoFragment"
         android:label="@string/menu_photo"
         tools:layout="@layout/fragment_photo" />
+
+    <fragment
+        android:id="@+id/nav_photo_detail"
+        android:name="edu.rosehulman.photovoicememo.ui.Photo.PhotoDetailFragment"
+        android:label="@string/photo_detail"
+        tools:layout="@layout/fragment_photo_detail"/>
 
     <fragment
         android:id="@+id/nav_camera"
