@@ -1,4 +1,4 @@
-package edu.rosehulman.photovoicememo.ui.transform
+package edu.rosehulman.photovoicememo.ui.album
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import edu.rosehulman.photovoicememo.R
-import edu.rosehulman.photovoicememo.databinding.FragmentTransformBinding
+import edu.rosehulman.photovoicememo.databinding.FragmentAlbumBinding
 import edu.rosehulman.photovoicememo.databinding.ItemTransformBinding
 
 /**
@@ -24,8 +24,8 @@ import edu.rosehulman.photovoicememo.databinding.ItemTransformBinding
  */
 class AlbumFragment : Fragment() {
 
-    private lateinit var transformViewModel: TransformViewModel
-    private var _binding: FragmentTransformBinding? = null
+    private lateinit var transformViewModel: AlbumViewModel
+    private var _binding: FragmentAlbumBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -36,8 +36,8 @@ class AlbumFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        transformViewModel = ViewModelProvider(this).get(TransformViewModel::class.java)
-        _binding = FragmentTransformBinding.inflate(inflater, container, false)
+        transformViewModel = ViewModelProvider(this).get(AlbumViewModel::class.java)
+        _binding = FragmentAlbumBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
         val recyclerView = binding.recyclerviewTransform

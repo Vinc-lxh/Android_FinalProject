@@ -1,13 +1,13 @@
-package edu.rosehulman.photovoicememo.ui.reflow
+package edu.rosehulman.photovoicememo.ui.profile
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class ReflowViewModel : ViewModel() {
+class ProfileViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
-        value = "This is reflow Fragment"
+        value = "This is slideshow Fragment"
     }
     val text: LiveData<String> = _text
 }

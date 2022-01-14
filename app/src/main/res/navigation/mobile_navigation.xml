@@ -7,21 +7,21 @@
 
     <fragment
         android:id="@+id/nav_album"
-        android:name="edu.rosehulman.photovoicememo.ui.transform.AlbumFragment"
+        android:name="edu.rosehulman.photovoicememo.ui.album.AlbumFragment"
         android:label="@string/menu_camera"
-        tools:layout="@layout/fragment_transform" />
+        tools:layout="@layout/fragment_album" />
 
     <fragment
         android:id="@+id/nav_camera"
-        android:name="edu.rosehulman.photovoicememo.ui.reflow.CameraFragment"
+        android:name="edu.rosehulman.photovoicememo.ui.camera.CameraFragment"
         android:label="@string/menu_album"
-        tools:layout="@layout/fragment_reflow" />
+        tools:layout="@layout/fragment_camera" />
 
     <fragment
         android:id="@+id/nav_profile"
-        android:name="edu.rosehulman.photovoicememo.ui.slideshow.ProfileFragment"
+        android:name="edu.rosehulman.photovoicememo.ui.profile.ProfileFragment"
         android:label="@string/menu_profile"
-        tools:layout="@layout/fragment_slideshow" />
+        tools:layout="@layout/fragment_profile" />
 
     <fragment
         android:id="@+id/nav_login"

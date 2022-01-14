@@ -1,4 +1,4 @@
-package edu.rosehulman.photovoicememo.ui.slideshow
+package edu.rosehulman.photovoicememo.ui.camera
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,13 +8,12 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import edu.rosehulman.photovoicememo.R
-import edu.rosehulman.photovoicememo.databinding.FragmentSlideshowBinding
+import edu.rosehulman.photovoicememo.databinding.FragmentCameraBinding
 
-class ProfileFragment : Fragment() {
+class CameraFragment : Fragment() {
 
-    private lateinit var slideshowViewModel: SlideshowViewModel
-    private var _binding: FragmentSlideshowBinding? = null
+    private lateinit var cameraViewModel: CameraViewModel
+    private var _binding: FragmentCameraBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -25,14 +24,14 @@ class ProfileFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        slideshowViewModel =
-            ViewModelProvider(this).get(SlideshowViewModel::class.java)
+        cameraViewModel =
+            ViewModelProvider(this).get(CameraViewModel::class.java)
 
-        _binding = FragmentSlideshowBinding.inflate(inflater, container, false)
+        _binding = FragmentCameraBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textSlideshow
-        slideshowViewModel.text.observe(viewLifecycleOwner, Observer {
+        val textView: TextView = binding.textReflow
+        cameraViewModel.text.observe(viewLifecycleOwner, Observer {
             textView.text = it
         })
         return root
