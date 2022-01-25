@@ -47,15 +47,15 @@ class CameraFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentCameraBinding.inflate(inflater, container, false)
+        pickCamera()
         cameraViewModel =
             ViewModelProvider(requireActivity()).get(CameraViewModel::class.java)
-        pickCamera()
         return binding.root
     }
 
     fun pickCamera() {
         imageView = binding.cameraImageView
-        openButton = binding.openButton
+//        openButton = binding.openButton
         val values = ContentValues()
         values.put(MediaStore.Images.Media.TITLE, "New Picture")
         values.put(MediaStore.Images.Media.DESCRIPTION, "From Camera")

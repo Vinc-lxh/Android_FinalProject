@@ -14,11 +14,17 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"/>
-        <Button
-            android:id="@+id/open_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="open camera"
-            android:layout_marginTop="10dp"/>
+
+    <ImageView
+        android:id="@+id/record_icon"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+
+        android:layout_centerInParent="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:src="@drawable/ic_baseline_mic_24" />
+
+
 
 </LinearLayout>
