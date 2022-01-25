@@ -8,11 +8,13 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/app_bar_main">
 
+
+
     <fragment
         android:id="@+id/nav_host_fragment_content_main"
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/fragment_horizontal_margin"
         android:layout_marginRight="@dimen/fragment_horizontal_margin"
         android:layout_weight="1"
@@ -24,25 +26,30 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_gravity="bottom"
-        app:menu="@menu/bottom_navigation" />
+        android:layout_alignParentBottom="true"
+        app:menu="@menu/bottom_navigation"
+        />
 <!--    <androidx.coordinatorlayout.widget.CoordinatorLayout-->
-<!--    android:layout_width="match_parent"-->
-<!--    android:layout_height="match_parent">-->
-<!--    <com.google.android.material.bottomappbar.BottomAppBar-->
-<!--        android:id="@+id/bottom_nav_view"-->
 <!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_gravity="bottom"-->
-<!--        style="@style/Widget.MaterialComponents.BottomAppBar.Colored"-->
-<!--        app:menu="@menu/bottom_navigation"-->
-<!--        />-->
+<!--        android:layout_height="match_parent">-->
+<!--        <com.google.android.material.bottomappbar.BottomAppBar-->
+<!--            android:id="@+id/bottom_nav_view"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="bottom"-->
+<!--            style="@style/Widget.MaterialComponents.BottomAppBar.Colored"-->
+<!--            app:navigationIcon="@drawable/ic_baseline_menu_24"-->
+<!--            app:srcCompat = "@drawable/ic_baseline_person_24"-->
+<!--            app:logo="@drawable/ic_baseline_person_24"-->
+<!--            app:menu="@menu/bottom_navigation"-->
+<!--            />-->
+<!--        <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            app:srcCompat="@drawable/ic_baseline_add_circle_24"-->
+<!--            app:layout_anchor="@id/bottom_nav_view"-->
+<!--            />-->
+<!--    </androidx.coordinatorlayout.widget.CoordinatorLayout>-->
 
-<!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        app:srcCompat="@drawable/ic_baseline_add_circle_24"-->
-<!--        app:layout_anchor="@id/bottom_nav_view"-->
-<!--        />-->
-<!--</androidx.coordinatorlayout.widget.CoordinatorLayout>-->
 
 </LinearLayout>
