@@ -67,6 +67,7 @@ class CameraFragment : Fragment() {
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cam_uri)
         startCamera.launch(cameraIntent)
     }
+
     var startCamera = registerForActivityResult(
         StartActivityForResult(),
         ActivityResultCallback<ActivityResult> { result ->

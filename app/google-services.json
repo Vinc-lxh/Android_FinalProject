@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "914610310954",
+    "project_id": "lin-photo-voicememo",
+    "storage_bucket": "lin-photo-voicememo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:914610310954:android:cef9b7bd51fee83a7c9853",
+        "android_client_info": {
+          "package_name": "edu.rosehulman.photovoicememo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "914610310954-kvfn415pbif50a5n70e07afrbe0kt6ks.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBolfzqWUwqGZeXEtOIiwPk2jvEf-Zglck"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "914610310954-kvfn415pbif50a5n70e07afrbe0kt6ks.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
