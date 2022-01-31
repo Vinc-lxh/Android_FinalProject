@@ -26,6 +26,7 @@ import android.content.pm.PackageManager
 import android.media.MediaRecorder
 import android.net.Uri
 import android.os.SystemClock
+import android.util.Log
 import android.widget.*
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCallback
@@ -89,7 +90,7 @@ class CameraFragment : Fragment() {
                 alertDialog.setPositiveButton(
                     "OKAY"
                 ) { dialog, which ->
-                    navController.navigate(R.id.photo_detail_view)
+                    navController.navigate(R.id.nav_photo_detail)
                     isRecording = false
                 }
                 alertDialog.setNegativeButton("CANCEL", null)
@@ -97,7 +98,7 @@ class CameraFragment : Fragment() {
                 alertDialog.setMessage("Are you sure, you want to stop the recording?")
                 alertDialog.create().show()
             } else {
-                navController.navigate(R.id.photo_detail_view)
+                navController.navigate(R.id.nav_photo_detail)
             }
         }
         binding.recordButton.setOnClickListener{
@@ -120,7 +121,7 @@ class CameraFragment : Fragment() {
                             null
                         )
                     )
-                    isRecording = false;
+                    isRecording = true;
                 }
 
             }
@@ -135,9 +136,6 @@ class CameraFragment : Fragment() {
     private fun stopRecording() {
 
         timer.stop()
-
-
-
         //Stop media recorder and set it to null for further use to record new audio
 
         //Stop media recorder and set it to null for further use to record new audio
@@ -173,8 +171,8 @@ class CameraFragment : Fragment() {
         //Setup Media Recorder for recording
 
         //Setup Media Recorder for recording
-
-        mediaRecorder = MediaRecorder(android.content.Context)
+        val context:android.content.Context = requireContext()
+        mediaRecorder = MediaRecorder(context)
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC)
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
         mediaRecorder.setOutputFile("$recordPath/$recordFile")
@@ -215,14 +213,19 @@ class CameraFragment : Fragment() {
     }
 
     var startCamera = registerForActivityResult(
-        StartActivityForResult(),
-        ActivityResultCallback<ActivityResult> { result ->
-            if (result.getResultCode() === RESULT_OK) {
-                imageView.setImageURI(cam_uri)
-            }
-        })
+        StartActivityForResult()
+    ) { result ->
+        if (result.getResultCode() === RESULT_OK) {
+            Log.d("errorPhoto", "is ok")
+            imageView.setImageURI(cam_uri)
+        }else{
+            Log.d("errorPhoto", "is not ok")
+        }
+    }
 
-
+    private fun checkCameraHardware(context: Context): Boolean {
+        return context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
+    }
     companion object {
         private const val REQUEST_CODE = 42
     }
