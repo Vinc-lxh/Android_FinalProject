@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.Photo.PhotoDetailFragment">
 
     <!--    <ImageView-->
@@ -21,6 +22,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerVertical="true"
         android:layout_marginTop="3dp"
+        android:layout_above="@id/caption_detail"
         android:contentDescription="Image"
         android:scaleType="centerInside"
         android:src="@drawable/avatar_10" />
@@ -29,23 +31,71 @@
         android:id="@+id/caption_detail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/play_fab"
+
+        android:layout_above="@id/player_sheet"
         android:layout_centerHorizontal="true"
         android:text="@string/date_edit_text_hint"
-        android:layout_marginBottom="8dp"
-        android:textSize="28sp"
-       />
+        android:textSize="28sp" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/play_fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/player_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="10dp"
-        android:layout_centerHorizontal="true"
-        android:backgroundTint="@color/ins_pink"
-        android:src="@android:drawable/ic_media_play"
-        />
+        android:background="@drawable/player_bg"
+        app:behavior_peekHeight="50dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
+        <ImageButton
+            android:id="@+id/player_play_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@color/colorPrimary"
+            android:padding="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/caption_detail"
+            app:srcCompat="@drawable/ic_baseline_play_arrow_24"
+            tools:ignore="NotSibling" />
+
+        <ImageButton
+            android:id="@+id/imageView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:padding="16dp"
+            app:layout_constraintBottom_toBottomOf="@+id/player_play_btn"
+            app:layout_constraintEnd_toStartOf="@+id/player_play_btn"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/player_play_btn"
+            app:srcCompat="@drawable/ic_baseline_fast_rewind_24" />
+
+        <ImageButton
+            android:id="@+id/imageView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:padding="16dp"
+            app:layout_constraintBottom_toBottomOf="@+id/player_play_btn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/player_play_btn"
+            app:layout_constraintTop_toTopOf="@+id/player_play_btn"
+            app:srcCompat="@drawable/ic_baseline_fast_forward_24" />
+
+        <SeekBar
+            android:id="@+id/player_seekbar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="32dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/player_play_btn" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </RelativeLayout>
