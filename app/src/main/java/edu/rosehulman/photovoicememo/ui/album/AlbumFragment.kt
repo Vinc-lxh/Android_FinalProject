@@ -1,6 +1,7 @@
 package edu.rosehulman.photovoicememo.ui.album
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,8 +16,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import edu.rosehulman.photovoicememo.R
 import edu.rosehulman.photovoicememo.databinding.FragmentAlbumBinding
+import edu.rosehulman.photovoicememo.model.Constants
+import edu.rosehulman.photovoicememo.model.PhotoVoice
 
 
 /**
@@ -42,6 +47,7 @@ class AlbumFragment : Fragment() {
 
         val recyclerView = binding.recyclerViewAlbum
         val adapter = AlbumAdapter(this)
+        adapter.addnew()
         recyclerView?.adapter = adapter
         recyclerView?.layoutManager =  GridLayoutManager(requireContext(),2)
         model.texts.observe(viewLifecycleOwner, {
@@ -61,6 +67,12 @@ class AlbumFragment : Fragment() {
             override fun areContentsTheSame(oldItem: String, newItem: String): Boolean =
                 oldItem == newItem
         }) {
+
+        fun addnew(){
+            Firebase.firestore.collection(Constants.COLLECTION_PATH).add(PhotoVoice("xxx","yyy"))
+            Log.d(Constants.TAG,"addtoFirebase")
+
+        }
 
         private val drawables = listOf(
             R.drawable.avatar_1,

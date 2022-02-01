@@ -65,11 +65,27 @@ class CameraFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentCameraBinding.inflate(inflater, container, false)
+        permissionLauncher.launch(android.Manifest.permission.CAMERA)
+        permissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+        permissionLauncher.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE)
         pickCamera()
         cameraViewModel =
             ViewModelProvider(requireActivity()).get(CameraViewModel::class.java)
         return binding.root
     }
+
+    val permissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // Do if the permission is granted
+        }
+        else {
+            // Do otherwise
+        }
+    }
+
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
