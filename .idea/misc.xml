@@ -37,6 +37,10 @@
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/menu/navigation_drawer.xml" value="0.2557291666666667" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/menu/overflow.xml" value="0.2557291666666667" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/app/src/main/res/layout/content_main.xml" value="0.12588652482269502" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.37864583333333335" />
+        <entry key="app/src/main/res/layout/app_bar_main.xml" value="0.37864583333333335" />
+        <entry key="app/src/main/res/layout/content_main.xml" value="0.37864583333333335" />
+        <entry key="app/src/main/res/layout/fragment_login.xml" value="0.37864583333333335" />
       </map>
     </option>
   </component>

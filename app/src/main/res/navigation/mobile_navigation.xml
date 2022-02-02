@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_login">
+    app:startDestination="@+id/nav_album">
 
     <fragment
         android:id="@+id/nav_album"
@@ -34,11 +34,7 @@
         android:name="edu.rosehulman.photovoicememo.ui.profile.ProfileFragment"
         android:label="@string/menu_profile"
         tools:layout="@layout/fragment_profile" />
-
-    <fragment
-        android:id="@+id/nav_login"
-        android:name="edu.rosehulman.photovoicememo.ui.LogIn.ui.login.LoginFragment"
-        tools:layout="@layout/fragment_login" />
+    
 
     <fragment
         android:id="@+id/nav_settings"
