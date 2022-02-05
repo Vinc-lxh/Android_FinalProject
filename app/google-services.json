@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "914610310954-28gkk6ajvc1kvh6hltvb5o6f2fj5vpht.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.rosehulman.photovoicememo",
+            "certificate_hash": "83a9a222ae1a1750b7ab4eb3f3ab320bc85ab495"
+          }
+        },
+        {
           "client_id": "914610310954-kvfn415pbif50a5n70e07afrbe0kt6ks.apps.googleusercontent.com",
           "client_type": 3
         }
