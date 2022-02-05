@@ -66,7 +66,7 @@ class CameraFragment : Fragment() {
     ): View {
         binding = FragmentCameraBinding.inflate(inflater, container, false)
         permissionLauncher.launch(android.Manifest.permission.CAMERA)
-        permissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+//        permissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
         permissionLauncher.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE)
         pickCamera()
         cameraViewModel =
@@ -75,13 +75,16 @@ class CameraFragment : Fragment() {
     }
 
     val permissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
+      ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
             // Do if the permission is granted
+            val toast = Toast.makeText(context,"permission granted",Toast.LENGTH_SHORT)
+            toast.show()
         }
         else {
-            // Do otherwise
+            val toast = Toast.makeText(context,"permission request fail",Toast.LENGTH_SHORT)
+            toast.show()
         }
     }
 
@@ -95,11 +98,6 @@ class CameraFragment : Fragment() {
         doneBtn = view.findViewById(R.id.done_record_button)
         recordBtn = view.findViewById(R.id.record_button)
         timer = view.findViewById(R.id.record_timer)
-//        filenameText = view.findViewById<TextView>(R.id.record_filename)
-
-        /* Setting up on click listener
-           - Class must implement 'View.OnClickListener' and override 'onClick' method
-         */
         binding.doneRecordButton.setOnClickListener{
             if (isRecording) {
                 val alertDialog = AlertDialog.Builder(context)
@@ -129,31 +127,32 @@ class CameraFragment : Fragment() {
                 )
                 isRecording = false;
             }else{
-                if(checkPermission()){
+                if(checkRecordPermission()){
                     startRecording()
-                    recordBtn.setImageDrawable(
-                        resources.getDrawable(
+                    recordBtn.setImageDrawable(resources.getDrawable(
                             R.drawable.ic_baseline_stop_24,
                             null
                         )
                     )
                     isRecording = true;
+                }else{
+                    permissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
                 }
 
             }
         }
     }
 
-    private fun checkPermission(): Boolean {
-        //TODO: ask for persmission
-        return true
+    private fun checkRecordPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            requireContext(),
+            android.Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun stopRecording() {
 
         timer.stop()
-        //Stop media recorder and set it to null for further use to record new audio
-
         //Stop media recorder and set it to null for further use to record new audio
         mediaRecorder.stop()
         mediaRecorder.release()
@@ -161,30 +160,20 @@ class CameraFragment : Fragment() {
     }
 
     private fun startRecording() {
-        //Start timer from 0
 
         //Start timer from 0
         timer.base = SystemClock.elapsedRealtime()
         timer.start()
 
         //Get app external directory path
-
-        //Get app external directory path
         val recordPath = requireActivity()!!.getExternalFilesDir("/")!!.absolutePath
-
-        //Get current date and time
 
         //Get current date and time
         val formatter = SimpleDateFormat("yyyy_MM_dd_hh_mm_ss", Locale.CANADA)
         val now = Date()
 
-        //initialize filename variable with date and time at the end to ensure the new file wont overwrite previous file
-
-        //initialize filename variable with date and time at the end to ensure the new file wont overwrite previous file
         recordFile = "Recording_" + formatter.format(now) + ".3gp"
 
-
-        //Setup Media Recorder for recording
 
         //Setup Media Recorder for recording
         val context:android.content.Context = requireContext()
@@ -200,16 +189,6 @@ class CameraFragment : Fragment() {
             e.printStackTrace()
         }
 
-        //Start Recording
-//        recorder = MediaRecorder(android.content.Context).apply {
-//            setAudioSource(MediaRecorder.AudioSource.MIC)
-//            setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-//            setOutputFile(fileName)
-//            setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)try {
-//            prepare()} catch (e: IOException) {Log.e(LOG_TAG, "prepare() failed")}
-//
-//            start()}
-        //Start Recording
         mediaRecorder.start()
     }
 
@@ -239,12 +218,6 @@ class CameraFragment : Fragment() {
         }
     }
 
-    private fun checkCameraHardware(context: Context): Boolean {
-        return context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
-    }
-    companion object {
-        private const val REQUEST_CODE = 42
-    }
 
 
 }
