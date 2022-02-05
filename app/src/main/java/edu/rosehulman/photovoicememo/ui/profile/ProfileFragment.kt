@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import edu.rosehulman.photovoicememo.databinding.FragmentProfileBinding
 import coil.load
 import coil.transform.CircleCropTransformation
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
@@ -43,6 +44,10 @@ class ProfileFragment : Fragment() {
 
                 }
             }
+             binding.logoutButton.setOnClickListener{
+                    Firebase.auth.signOut()
+
+                }
             crossfade(true)
             transformations(CircleCropTransformation())
         }

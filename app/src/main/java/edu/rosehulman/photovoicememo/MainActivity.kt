@@ -2,6 +2,7 @@ package edu.rosehulman.photovoicememo
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import com.google.android.material.snackbar.Snackbar
@@ -12,25 +13,43 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.NavController
+import com.firebase.ui.auth.AuthUI
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import edu.rosehulman.photovoicememo.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+    private lateinit var navController: NavController
+    private lateinit var authStateListener: FirebaseAuth.AuthStateListener
+
+    override fun onStart() {
+        super.onStart()
+        Firebase.auth.addAuthStateListener(authStateListener)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Firebase.auth.removeAuthStateListener(authStateListener)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.appBarMain.toolbar)
-
         binding.appBarMain.fab?.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
         }
+        initializeAuthListener()
+        navController = findNavController(R.id.nav_host_fragment_content_main)
 
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
         binding.navView?.let {
             appBarConfiguration = AppBarConfiguration(
                 setOf(
@@ -52,8 +71,37 @@ class MainActivity : AppCompatActivity() {
             it.setupWithNavController(navController)
         }
 
+    }
 
+    private fun initializeAuthListener() {
+        authStateListener = FirebaseAuth.AuthStateListener { auth:FirebaseAuth->
+            val user = auth.currentUser
+            if(user == null){
+                setupAuthUI()
+            }else{//we are gurantted to have a user
+                with(user){
+                    Log.d(Constants.TAG,"User: $uid, $email, $displayName, $photoUrl")
+                }
 
+            }
+        }
+    }
+    val signinLauncher = registerForActivityResult(
+        FirebaseAuthUIActivityResultContract()
+    ) { /* empty since the auth listener already responds .*/ }
+
+    private fun setupAuthUI() {
+        val providers = arrayListOf(
+            AuthUI.IdpConfig.EmailBuilder().build(),
+            AuthUI.IdpConfig.PhoneBuilder().build(),
+            AuthUI.IdpConfig.GoogleBuilder().build()
+        )
+        val signinIntent = AuthUI.getInstance()
+            .createSignInIntentBuilder()
+            .setAvailableProviders(providers)
+            .setIsSmartLockEnabled(false)
+            .build()
+        signinLauncher.launch(signinIntent)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
