@@ -1,5 +1,6 @@
 package edu.rosehulman.photovoicememo.ui.album
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -101,6 +102,7 @@ class AlbumFragment : Fragment() {
 
         override fun onBindViewHolder(holder: AlbumViewHolder, position: Int) {
             holder.textView.text = getItem(position)
+
             holder.imageView.setImageDrawable(
                 ResourcesCompat.getDrawable(holder.imageView.resources, drawables[position], null)
             )
@@ -129,6 +131,8 @@ class AlbumViewHolder(itemView: View, fragment: AlbumFragment) : RecyclerView.Vi
              }
 
     }
+
+
 
 
 
