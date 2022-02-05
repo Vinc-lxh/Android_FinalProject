@@ -16,7 +16,7 @@
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/layout-w600dp/content_main.xml" value="0.3421516754850088" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/layout-w600dp/fragment_album.xml" value="0.21649029982363316" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/layout-w600dp/item_transform.xml" value="0.21649029982363316" />
-        <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/layout/activity_main.xml" value="0.264" />
+        <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/layout/album_item_transform.xml" value="0.2557291666666667" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/layout/app_bar_main.xml" value="0.2557291666666667" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/layout/content_main.xml" value="0.264" />
@@ -30,18 +30,20 @@
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/layout/fragment_reflow.xml" value="0.2557291666666667" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/layout/fragment_settings.xml" value="0.2557291666666667" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/layout/fragment_slideshow.xml" value="0.2557291666666667" />
+        <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/layout/fragment_splash.xml" value="0.19807497467071936" />
+        <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/layout/fragment_user_edit.xml" value="0.176" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/layout/item_transform.xml" value="0.264" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/layout/photo_fragment.xml" value="0.2557291666666667" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/layout/player_sheet.xml" value="0.4" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/menu/bottom_navigation.xml" value="0.2557291666666667" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/menu/navigation_drawer.xml" value="0.2557291666666667" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/menu/overflow.xml" value="0.2557291666666667" />
+        <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/xml/fire_paths.xml" value="0.196048632218845" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/app/src/main/res/layout/content_main.xml" value="0.12588652482269502" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.37864583333333335" />
         <entry key="app/src/main/res/layout/app_bar_main.xml" value="0.37864583333333335" />
         <entry key="app/src/main/res/layout/content_main.xml" value="0.37864583333333335" />
         <entry key="app/src/main/res/layout/fragment_login.xml" value="0.37864583333333335" />
-        <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.428125" />
       </map>
     </option>
   </component>

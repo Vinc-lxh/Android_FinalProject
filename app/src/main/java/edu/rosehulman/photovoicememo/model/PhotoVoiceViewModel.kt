@@ -2,22 +2,26 @@ package edu.rosehulman.photovoicememo.model
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.google.firebase.firestore.FirebaseFirestoreException
-import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.*
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import edu.rosehulman.photovoicememo.User
 import kotlin.random.Random
 
 class PhotoVoiceViewModel: ViewModel() {
     private var photosvoice = ArrayList<PhotoVoice>()
     var currentPos = 0
 
-    val ref = Firebase.firestore.collection("photoVoice")
+    lateinit var ref: CollectionReference
+//    = Firebase.firestore.collection("photoVoice")
 
     val subscriptions = HashMap<String, ListenerRegistration>()
     fun addListener(fragmentName: String, observer: () -> Unit) {
+        val uid = Firebase.auth.currentUser!!.uid
+        ref = Firebase.firestore.collection(User.COLLECTION_PATH). document(uid)
+            .collection(PhotoVoice.COLLECTION_PATH)
+
         Log.d(Constants.TAG,"Adding listener for $fragmentName")
         val subscription = ref
             .orderBy(PhotoVoice.CREATED_KEY, Query.Direction.ASCENDING)

@@ -29,8 +29,7 @@
         android:layout_above="@id/center_image"
         android:layout_centerHorizontal="true"
         android:text="Deng Zou"
-        android:textSize="72sp"
-        />
+        android:textSize="72sp" />
 
     <ImageView
         android:id="@+id/center_image"

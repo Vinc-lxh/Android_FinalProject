@@ -13,6 +13,7 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
@@ -20,6 +21,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import edu.rosehulman.photovoicememo.databinding.ActivityMainBinding
+import edu.rosehulman.photovoicememo.model.UserViewModel
 
 class MainActivity : AppCompatActivity() {
 
@@ -82,7 +84,20 @@ class MainActivity : AppCompatActivity() {
                 with(user){
                     Log.d(Constants.TAG,"User: $uid, $email, $displayName, $photoUrl")
                 }
+                val userModel = ViewModelProvider(this).get(UserViewModel::class.java)
+                userModel.getOrMakeUser{
+                    if(userModel.hasCompletedSetup()){
+                        val id = findNavController(R.id.nav_host_fragment_content_main).currentDestination!!.id
+                        if (id == R.id.nav_splash) {
+                            findNavController(R.id.nav_host_fragment_content_main)
+                                .navigate(R.id.nav_album)
+                        }
 
+                    }else{
+                        Log.d(Constants.TAG,"creating new  and go edit page")
+                        navController.navigate(R.id.nav_user_edit)
+                    }
+                }
             }
         }
     }

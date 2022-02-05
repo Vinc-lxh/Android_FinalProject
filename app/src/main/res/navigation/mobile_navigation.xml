@@ -3,13 +3,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_album">
+    app:startDestination="@+id/nav_splash">
 
     <fragment
         android:id="@+id/nav_album"
         android:name="edu.rosehulman.photovoicememo.ui.album.AlbumFragment"
         android:label="@string/menu_album"
         tools:layout="@layout/fragment_album" />
+    <fragment
+        android:id="@+id/nav_splash"
+        android:name="edu.rosehulman.photovoicememo.ui.SplashFragment"
+        android:label="Welcome"
+        tools:layout="@layout/fragment_splash" />
+
+    <fragment
+        android:id="@+id/nav_user_edit"
+        android:name="edu.rosehulman.photovoicememo.ui.UserEditFragment"
+        android:label="edit profile"
+        tools:layout="@layout/fragment_user_edit" />
 
     <fragment
         android:id="@+id/nav_photo"
