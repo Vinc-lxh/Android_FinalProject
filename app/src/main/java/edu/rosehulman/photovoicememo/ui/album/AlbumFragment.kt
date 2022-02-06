@@ -48,7 +48,6 @@ class AlbumFragment : Fragment() {
 
         val recyclerView = binding.recyclerViewAlbum
         val adapter = AlbumAdapter(this)
-        adapter.addnew()
         recyclerView?.adapter = adapter
         recyclerView?.layoutManager =  GridLayoutManager(requireContext(),2)
         model.texts.observe(viewLifecycleOwner, {
@@ -69,11 +68,6 @@ class AlbumFragment : Fragment() {
                 oldItem == newItem
         }) {
 
-        fun addnew(){
-            Firebase.firestore.collection(Constants.COLLECTION_PATH).add(PhotoVoice("xxx","yyy"))
-            Log.d(Constants.TAG,"addtoFirebase")
-
-        }
 
         private val drawables = listOf(
             R.drawable.avatar_1,

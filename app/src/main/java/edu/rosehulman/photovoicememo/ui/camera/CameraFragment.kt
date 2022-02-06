@@ -60,7 +60,11 @@ class CameraFragment : Fragment() {
         .child("recording")
 
     private var storageUriStringInFragment: String = ""
+    private var voiceUriStringInFragment: String = ""
 
+    companion object{
+        const val fragmentName = "CameraFragment"
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -69,6 +73,7 @@ class CameraFragment : Fragment() {
     ): View {
         binding = FragmentCameraBinding.inflate(inflater, container, false)
         photoViewModel = ViewModelProvider(requireActivity()).get(PhotoVoiceViewModel::class.java)
+
         takeImage()
         showPictureDialog()
         return binding.root
@@ -163,11 +168,30 @@ class CameraFragment : Fragment() {
         val recordPath = requireActivity()!!.getExternalFilesDir("/")!!.absolutePath
         var file = Uri.fromFile(File("$recordPath/$recordFile"))
         val riversRef = storageRecordRef.child("${file.lastPathSegment}")
-        var  uploadTask = riversRef.putFile(file)
+
+        var  uploadTask = riversRef.putFile(file).continueWithTask { task ->
+                if (!task.isSuccessful) {
+                    task.exception?.let {
+                        throw it
+                    }
+                }
+            storageRecordRef.child("${file.lastPathSegment}").downloadUrl
+            }.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    voiceUriStringInFragment = task.result.toString()
+                    Log.d(Constants.TAG, "Got download uri: $voiceUriStringInFragment")
+                    photoViewModel.addPhotoVoice(PhotoVoice(photo = storageUriStringInFragment,voice = voiceUriStringInFragment))
+                } else {
+                    // Handle failures
+                    // ...
+                }
+            }
 
 // Register observers to listen for when the download is done or if it fails
         uploadTask.addOnFailureListener {
             // Handle unsuccessful uploads
+
+
             Log.d(Constants.TAG, "uploaded recording")
         }.addOnSuccessListener { taskSnapshot ->
             // taskSnapshot.metadata contains file metadata such as size, content-type, etc.
@@ -210,6 +234,7 @@ class CameraFragment : Fragment() {
 
         }
         builder.setNegativeButton("NO, just photo") { _, _ ->
+            photoViewModel.addPhotoVoice(PhotoVoice(photo = storageUriStringInFragment))
             navController.navigate(R.id.nav_photo_detail)
         }
         builder.create().show()
@@ -266,7 +291,6 @@ class CameraFragment : Fragment() {
             }.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     storageUriStringInFragment = task.result.toString()
-                    photoViewModel.addPhotoVoice(PhotoVoice(photo = storageUriStringInFragment))
                     Log.d(Constants.TAG, "Got download uri: $storageUriStringInFragment")
                 } else {
                     // Handle failures

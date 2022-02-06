@@ -38,8 +38,8 @@ class PhotoFragment : Fragment() {
         binding = FragmentPhotoBinding.inflate(inflater, container, false)
         val recyclerView = binding.recyclerviewPhoto
         val adapter = PhotoAdapter(this)
-        recyclerView.adapter = adapter
         adapter.addListener(fragmentName)
+        recyclerView.adapter = adapter
         recyclerView.setHasFixedSize(true)
         recyclerView.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
 
