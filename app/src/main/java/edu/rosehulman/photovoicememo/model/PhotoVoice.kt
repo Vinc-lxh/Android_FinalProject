@@ -15,7 +15,7 @@ data class PhotoVoice(
     var created: Timestamp? = null
 
     companion object{
-        const val COLLECTION_PATH = "photo"
+        const val COLLECTION_PATH = "PhotoVoice"
         const val CREATED_KEY = "created"
 
         fun from(snapshot: DocumentSnapshot): PhotoVoice{

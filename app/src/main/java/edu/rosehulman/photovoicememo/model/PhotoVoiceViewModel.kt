@@ -13,8 +13,8 @@ class PhotoVoiceViewModel: ViewModel() {
     private var photosvoice = ArrayList<PhotoVoice>()
     var currentPos = 0
 
-    lateinit var ref: CollectionReference
-//    = Firebase.firestore.collection("photoVoice")
+    //lateinit var ref: CollectionReference
+    var ref: CollectionReference = Firebase.firestore.collection(PhotoVoice.COLLECTION_PATH)
 
     val subscriptions = HashMap<String, ListenerRegistration>()
     fun addListener(fragmentName: String, observer: () -> Unit) {

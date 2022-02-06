@@ -1,50 +1,45 @@
 package edu.rosehulman.photovoicememo.ui.camera
 
-import android.app.Activity
-import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
-import android.content.Intent
-import android.graphics.Bitmap
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import edu.rosehulman.photovoicememo.MainActivity
 import edu.rosehulman.photovoicememo.databinding.FragmentCameraBinding
-import java.util.jar.Manifest
-import android.content.ContentValues
-import android.content.Context
-import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
 import android.net.Uri
+import android.os.Environment
 import android.os.SystemClock
 import android.util.Log
 import android.widget.*
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultCallback
 
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
-import androidx.core.app.ActivityCompat
+import androidx.core.content.FileProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
+import edu.rosehulman.photovoicememo.BuildConfig
+import edu.rosehulman.photovoicememo.Constants
 import edu.rosehulman.photovoicememo.R
+import edu.rosehulman.photovoicememo.model.PhotoVoice
+import edu.rosehulman.photovoicememo.model.PhotoVoiceViewModel
+import edu.rosehulman.photovoicememo.ui.Photo.PhotoViewModel
+import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.random.Random
 
 
 class CameraFragment : Fragment() {
 
-    private lateinit var cameraViewModel: CameraViewModel
+    private lateinit var photoViewModel: PhotoVoiceViewModel
     private lateinit var binding: FragmentCameraBinding
     private lateinit var mediaRecorder: MediaRecorder
     private lateinit var navController: NavController
@@ -52,25 +47,30 @@ class CameraFragment : Fragment() {
     private var recordFile: String = ""
     private lateinit var doneBtn: ImageButton
     private lateinit var recordBtn: ImageButton
-    private lateinit var filenameText: TextView
     private lateinit var timer: Chronometer
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     lateinit var imageView:ImageView
-    lateinit var openButton: Button
-    lateinit var cam_uri: Uri
+    private var latestTmpUri: Uri? = null
+
+    private val storageImagesRef = Firebase.storage
+        .reference
+        .child("images")
+
+    private val storageRecordRef = Firebase.storage
+        .reference
+        .child("recording")
+
+    private var storageUriStringInFragment: String = ""
+
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentCameraBinding.inflate(inflater, container, false)
-        permissionLauncher.launch(android.Manifest.permission.CAMERA)
-//        permissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
-        permissionLauncher.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE)
-        pickCamera()
-        cameraViewModel =
-            ViewModelProvider(requireActivity()).get(CameraViewModel::class.java)
+        photoViewModel = ViewModelProvider(requireActivity()).get(PhotoVoiceViewModel::class.java)
+        takeImage()
+        showPictureDialog()
         return binding.root
     }
 
@@ -98,50 +98,11 @@ class CameraFragment : Fragment() {
         doneBtn = view.findViewById(R.id.done_record_button)
         recordBtn = view.findViewById(R.id.record_button)
         timer = view.findViewById(R.id.record_timer)
-        binding.doneRecordButton.setOnClickListener{
-            if (isRecording) {
-                val alertDialog = AlertDialog.Builder(context)
-                alertDialog.setPositiveButton(
-                    "OKAY"
-                ) { dialog, which ->
-                    navController.navigate(R.id.nav_photo_detail)
-                    isRecording = false
-                }
-                alertDialog.setNegativeButton("CANCEL", null)
-                alertDialog.setTitle("Audio Still recording")
-                alertDialog.setMessage("Are you sure, you want to stop the recording?")
-                alertDialog.create().show()
-            } else {
-                navController.navigate(R.id.nav_photo_detail)
-            }
-        }
-        binding.recordButton.setOnClickListener{
-            if(isRecording){//double hit stop recording
-                stopRecording()
-                // Change button image and set Recording state to false
-                recordBtn.setImageDrawable(
-                    resources.getDrawable(
-                        R.drawable.ic_baseline_mic_24,
-                        null
-                    )
-                )
-                isRecording = false;
-            }else{
-                if(checkRecordPermission()){
-                    startRecording()
-                    recordBtn.setImageDrawable(resources.getDrawable(
-                            R.drawable.ic_baseline_stop_24,
-                            null
-                        )
-                    )
-                    isRecording = true;
-                }else{
-                    permissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
-                }
 
-            }
-        }
+        setupButton()
+
     }
+
 
     private fun checkRecordPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
@@ -150,8 +111,14 @@ class CameraFragment : Fragment() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun stopRecording() {
+    private fun checkCameraPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            requireContext(),
+            android.Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
+    }
 
+    private fun stopRecording() {
         timer.stop()
         //Stop media recorder and set it to null for further use to record new audio
         mediaRecorder.stop()
@@ -192,32 +159,169 @@ class CameraFragment : Fragment() {
         mediaRecorder.start()
     }
 
-    fun pickCamera() {
-        imageView = binding.cameraImageView
-//        openButton = binding.openButton
-        val values = ContentValues()
-        values.put(MediaStore.Images.Media.TITLE, "New Picture")
-        values.put(MediaStore.Images.Media.DESCRIPTION, "From Camera")
-        cam_uri = requireContext().contentResolver.insert(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            values
-        )!!
-        val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cam_uri)
-        startCamera.launch(cameraIntent)
-    }
+    private fun uploadRecording(){
+        val recordPath = requireActivity()!!.getExternalFilesDir("/")!!.absolutePath
+        var file = Uri.fromFile(File("$recordPath/$recordFile"))
+        val riversRef = storageRecordRef.child("${file.lastPathSegment}")
+        var  uploadTask = riversRef.putFile(file)
 
-    var startCamera = registerForActivityResult(
-        StartActivityForResult()
-    ) { result ->
-        if (result.getResultCode() === RESULT_OK) {
-            Log.d("errorPhoto", "is ok")
-            imageView.setImageURI(cam_uri)
-        }else{
-            Log.d("errorPhoto", "is not ok")
+// Register observers to listen for when the download is done or if it fails
+        uploadTask.addOnFailureListener {
+            // Handle unsuccessful uploads
+            Log.d(Constants.TAG, "uploaded recording")
+        }.addOnSuccessListener { taskSnapshot ->
+            // taskSnapshot.metadata contains file metadata such as size, content-type, etc.
+            // ...
         }
     }
 
+    //camera part---------------------------------------------------------------------------------------------------------------------------
+
+    private val takeImageResult =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
+            if (isSuccess) {
+                latestTmpUri?.let { uri ->
+                    binding.cameraImageView.setImageURI(uri)
+                    addPhotoFromUri(uri)
+                }
+            }
+        }
+
+
+    private fun takeImage() {
+        if(checkCameraPermission()){
+            lifecycleScope.launchWhenStarted {
+                getTmpFileUri().let { uri ->
+                    latestTmpUri = uri
+                    takeImageResult.launch(uri)
+                }
+            }
+        }else{
+            permissionLauncher.launch(android.Manifest.permission.CAMERA)
+        }
+
+    }
+
+    private fun showPictureDialog() {
+        val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        builder.setTitle("Voice Memo Option")
+        builder.setMessage("Would you like to record a short voice memo?\n")
+        builder.setPositiveButton("Yes") { _, _ ->
+
+        }
+        builder.setNegativeButton("NO, just photo") { _, _ ->
+            navController.navigate(R.id.nav_photo_detail)
+        }
+        builder.create().show()
+    }
+
+//    private fun takeImage() {
+//        lifecycleScope.launchWhenStarted {
+//            getTmpFileUri().let { uri ->
+//                latestTmpUri = uri
+//                takeImageResult.launch(uri)
+//            }
+//        }
+//    }
+
+    private fun getTmpFileUri(): Uri {
+        val storageDir: File = requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
+        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+        val tmpFile = File.createTempFile("JPEG_${timeStamp}_", ".png", storageDir).apply {
+            createNewFile()
+            deleteOnExit()
+        }
+        return FileProvider.getUriForFile(
+            requireContext(),
+            "${BuildConfig.APPLICATION_ID}.provider",
+            tmpFile
+        )
+    }
+
+
+
+    private fun addPhotoFromUri(uri: Uri?) {
+        if (uri == null) {
+            Log.e(Constants.TAG, "Uri is null. Not saving to storage")
+            return
+        }
+// https://stackoverflow.com/a/5657557
+        val stream = requireActivity().contentResolver.openInputStream(uri)
+        if (stream == null) {
+            Log.e(Constants.TAG, "Stream is null. Not saving to storage")
+            return
+        }
+
+        // TODO: Add to storage
+        val imageId = Math.abs(Random.nextLong()).toString()
+
+        storageImagesRef.child(imageId).putStream((stream))
+            .continueWithTask { task ->
+                if (!task.isSuccessful) {
+                    task.exception?.let {
+                        throw it
+                    }
+                }
+                storageImagesRef.child(imageId).downloadUrl
+            }.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    storageUriStringInFragment = task.result.toString()
+                    photoViewModel.addPhotoVoice(PhotoVoice(photo = storageUriStringInFragment))
+                    Log.d(Constants.TAG, "Got download uri: $storageUriStringInFragment")
+                } else {
+                    // Handle failures
+                    // ...
+                }
+            }
+    }
+
+    private fun setupButton() {
+        binding.doneRecordButton.setOnClickListener{
+            if (isRecording) {
+                val alertDialog = AlertDialog.Builder(context)
+                alertDialog.setPositiveButton(
+                    "OKAY"
+                ) { dialog, which ->
+                    navController.navigate(R.id.nav_photo_detail)
+                    isRecording = false
+                }
+                alertDialog.setNegativeButton("CANCEL", null)
+                alertDialog.setTitle("Audio Still recording")
+                alertDialog.setMessage("Are you sure, you want to stop the recording?")
+                alertDialog.create().show()
+
+            } else {
+                uploadRecording()
+                navController.navigate(R.id.nav_photo_detail)
+            }
+        }
+        binding.recordButton.setOnClickListener{
+            if(isRecording){//double hit stop recording
+                stopRecording()
+                // Change button image and set Recording state to false
+                recordBtn.setImageDrawable(
+                    resources.getDrawable(
+                        R.drawable.ic_baseline_mic_24,
+                        null
+                    )
+                )
+                isRecording = false;
+            }else{
+                if(checkRecordPermission()){
+                    startRecording()
+                    recordBtn.setImageDrawable(resources.getDrawable(
+                        R.drawable.ic_baseline_stop_24,
+                        null
+                    )
+                    )
+                    isRecording = true;
+                }else{
+                    permissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+                }
+
+            }
+        }
+    }
 
 
 }
