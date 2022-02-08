@@ -1,0 +1,25 @@
+@startuml
+
+users-->"*" Albums
+users-->"*" PhotoVoice
+
+class users{
+age:Int
+email:String
+hasCompletedSetup:boolean
+name:String
+}
+class Albums{
+ID:String
+created:TimeStamp
+name:String
+url:String
+}
+
+class PhotoVoice{
+albumID:String
+created:TimeStamp
+photo:String
+voice:String
+}
+@enduml
