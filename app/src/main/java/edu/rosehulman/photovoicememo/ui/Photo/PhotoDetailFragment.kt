@@ -38,13 +38,7 @@ class PhotoDetailFragment : Fragment() {
     private fun setupButton() {
 
         binding.playerPlayBtn.setOnClickListener {
-            if (playing) {
-                startPlaying()
 
-            } else {
-                stopPlaying()
-            }
-            playing = !playing
 
         }
 
@@ -62,21 +56,5 @@ class PhotoDetailFragment : Fragment() {
 
 
 
-    private fun startPlaying() {
-        player = MediaPlayer().apply {
-            try {
-                setDataSource(photoVoice.voice)
-                prepare()
-                start()
-            } catch (e: IOException) {
-                Log.e(Constants.TAG, "prepare() failed")
-            }
-        }
-    }
-
-    private fun stopPlaying() {
-        player?.release()
-        player = null
-    }
 }
 

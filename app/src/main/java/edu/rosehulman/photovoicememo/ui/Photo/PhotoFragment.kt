@@ -1,38 +1,60 @@
 package edu.rosehulman.photovoicememo.ui.Photo
 
-import android.graphics.Color
-import android.net.Uri
+import android.media.MediaPlayer
+import android.media.MediaPlayer.OnCompletionListener
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
-import androidx.core.content.res.ResourcesCompat
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.CircleCropTransformation
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
+import com.google.android.material.button.MaterialButton
 import edu.rosehulman.photovoicememo.R
-import edu.rosehulman.photovoicememo.databinding.FragmentCameraBinding
 import edu.rosehulman.photovoicememo.databinding.FragmentPhotoBinding
+import edu.rosehulman.photovoicememo.model.Constants
 import edu.rosehulman.photovoicememo.model.PhotoVoice
 import edu.rosehulman.photovoicememo.model.PhotoVoiceViewModel
+import java.io.File
+import java.io.IOException
 
 
 class PhotoFragment : Fragment() {
+    private lateinit var allFiles: Array<File>
+    private var mediaPlayer: MediaPlayer? = null
+    private var isPlaying = false
+    private var fileToPlay: File? = null
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
+    private lateinit var playerSheet: ConstraintLayout
+
+    //UI Elements
+    private lateinit var playBtn: ImageButton
+    private lateinit var playerHeader: TextView
+    private lateinit var playerFilename: TextView
+
+    private lateinit var playerSeekbar: SeekBar
+    private lateinit var seekbarHandler: Handler
+    private lateinit var updateSeekbar: Runnable
 
     private lateinit var model: PhotoVoiceViewModel
     private lateinit var binding: FragmentPhotoBinding
+    private lateinit var adapter: PhotoAdapter
 //    private lateinit var binding2: FragmentCameraBinding
 
     override fun onCreateView(
@@ -43,15 +65,19 @@ class PhotoFragment : Fragment() {
         model = ViewModelProvider(this).get(PhotoVoiceViewModel::class.java)
         binding = FragmentPhotoBinding.inflate(inflater, container, false)
         val recyclerView = binding.recyclerviewPhoto
-        val adapter = PhotoAdapter(this)
+        adapter = PhotoAdapter(this)
         adapter.addListener(fragmentName)
         recyclerView.adapter = adapter
         recyclerView.setHasFixedSize(true)
-        recyclerView.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
+        recyclerView.addItemDecoration(
+            DividerItemDecoration(
+                requireContext(),
+                DividerItemDecoration.VERTICAL
+            )
+        )
+
         binding.addFab.setOnClickListener {
             findNavController().navigate(R.id.nav_camera)
-
-
         }
 
 //        model.texts.observe(viewLifecycleOwner, {
@@ -60,7 +86,143 @@ class PhotoFragment : Fragment() {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
+        playerSheet = view.findViewById(R.id.player_sheet)
+        bottomSheetBehavior = BottomSheetBehavior.from<ConstraintLayout>(playerSheet)
+        playBtn = view.findViewById(R.id.player_play_btn)
+        playerHeader = view.findViewById(R.id.player_header_title)
+        playerFilename = view.findViewById(R.id.player_filename)
+        playerSeekbar = view.findViewById(R.id.player_seekbar)
+        val path = requireActivity().getExternalFilesDir("/")!!.absolutePath
+        val directory = File(path)
+        allFiles = directory.listFiles()
+
+        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED)
+                }
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                //We cant do anything here for this app
+            }
+        })
+        playBtn.setOnClickListener {
+            Log.d(Constants.TAG,"$isPlaying")
+            if (isPlaying) {
+                pauseAudio()
+            } else {
+                if (mediaPlayer != null) {
+                    resumeAudio()
+                }
+            }
+        }
+        playerSeekbar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {}
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+                pauseAudio()
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                val progress = seekBar.progress
+                mediaPlayer!!.seekTo(progress)
+                resumeAudio()
+            }
+        })
+    }
+
+//    fun onClickListener(file: File, position: Int) {
+//        fileToPlay = file
+//        if (isPlaying) {
+//            stopAudio()
+//            playAudio()
+//        } else {
+//            playAudio()
+//        }
+//    }
+
+    private fun pauseAudio() {
+        mediaPlayer!!.pause()
+        playBtn.setImageDrawable(requireActivity().resources.getDrawable(R.drawable.ic_baseline_play_arrow_24, null))
+        isPlaying = false
+        seekbarHandler.removeCallbacks(updateSeekbar)
+    }
+
+    private fun resumeAudio() {
+        mediaPlayer!!.start()
+        playBtn.setImageDrawable(
+            requireActivity().resources.getDrawable(
+                R.drawable.ic_baseline_pause_24,
+                null
+            )
+        )
+        isPlaying = true
+        updateRunnable()
+        seekbarHandler.postDelayed(updateSeekbar, 0)
+    }
+
+    private fun stopAudio() {
+        //Stop The Audio
+        playBtn.setImageDrawable(requireActivity().resources.getDrawable(R.drawable.ic_baseline_play_arrow_24, null))
+        playerHeader.text = "Stopped"
+        isPlaying = false
+        mediaPlayer!!.stop()
+        seekbarHandler.removeCallbacks(updateSeekbar)
+    }
+
+
+    private fun playAudio() {
+        mediaPlayer = MediaPlayer()
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        try {
+            mediaPlayer!!.setDataSource(adapter.getCurrentVoice())
+            Log.d(Constants.TAG, "${adapter.getCurrentVoice()}")
+//            mediaPlayer!!.setDataSource(fileToPlay.absolutePath)
+            mediaPlayer!!.prepare()
+            mediaPlayer!!.start()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        playBtn.setImageDrawable(
+            requireActivity().resources.getDrawable(
+                R.drawable.ic_baseline_pause_24,
+                null
+            )
+        )
+        playerFilename.text = adapter.model.getCurrentPhoto().created.toString()
+        playerHeader.text = "Playing"
+        //Play the audio
+        isPlaying = true
+        mediaPlayer!!.setOnCompletionListener(OnCompletionListener {
+            stopAudio()
+            playerHeader.text = "Finished"
+        })
+        playerSeekbar.max = mediaPlayer!!.getDuration()
+        seekbarHandler = Handler(Looper.getMainLooper())
+        updateRunnable()
+        seekbarHandler.postDelayed(updateSeekbar, 0)
+    }
+
+    private fun updateRunnable() {
+        updateSeekbar = object : Runnable {
+            override fun run() {
+                playerSeekbar.progress = mediaPlayer!!.currentPosition
+                seekbarHandler.postDelayed(this, 500)
+            }
+        }
+    }
+    override fun onStop() {
+        super.onStop()
+        if (isPlaying) {
+            stopAudio()
+        }
+    }
+
+
+    /***************************************************************************************************************************/
     companion object{
         const val fragmentName = "PhotoFragment"
     }
@@ -69,32 +231,20 @@ class PhotoFragment : Fragment() {
 
     class PhotoAdapter(val fragment: PhotoFragment) : RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder>() {
             val model = ViewModelProvider(fragment.requireActivity()).get(PhotoVoiceViewModel::class.java)
+//        val url = "http://........" // your URL here
+//        val mediaPlayer = MediaPlayer().apply {
+//            setAudioAttributes(
+//                AudioAttributes.Builder()
+//                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+//                    .setUsage(AudioAttributes.USAGE_MEDIA)
+//                    .build()
+//            )
+//            setDataSource(url)
+//            prepare() // might take long! (for buffering, etc)
+//            start()
+//        }
 
-//            override fun areItemsTheSame(oldItem: String, newItem: String): Boolean =
-//                oldItem == newItem
-//
-//            override fun areContentsTheSame(oldItem: String, newItem: String): Boolean =
-//                oldItem == newItem
-//        }) {
-//
-//        private val drawables = listOf(
-//            R.drawable.avatar_1,
-//            R.drawable.avatar_2,
-//            R.drawable.avatar_3,
-//            R.drawable.avatar_4,
-//            R.drawable.avatar_5,
-//            R.drawable.avatar_6,
-//            R.drawable.avatar_7,
-//            R.drawable.avatar_8,
-//            R.drawable.avatar_9,
-//            R.drawable.avatar_10,
-//            R.drawable.avatar_11,
-//            R.drawable.avatar_12,
-//            R.drawable.avatar_13,
-//            R.drawable.avatar_14,
-//            R.drawable.avatar_15,
-//            R.drawable.avatar_16,
-//        )
+
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoViewHolder {
 
@@ -120,36 +270,49 @@ class PhotoFragment : Fragment() {
         }
 
         override fun getItemCount() = model.size()
+        fun getCurrentVoice()= model.getCurrentPhoto().voice
 
-    inner class PhotoViewHolder(itemView: View) :RecyclerView.ViewHolder(itemView) {
 
-        val imageView: ImageView = itemView.findViewById(R.id.image_view_item_transform)
-        val textView: TextView = itemView.findViewById(R.id.text_view_item_transform)
+        inner class PhotoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        init {
-            itemView.setOnClickListener {
-                model.updatePos(absoluteAdapterPosition)
-                fragment.findNavController().navigate(R.id.nav_photo_detail,
-                    null,
-                    navOptions {
-                        anim {
-                            enter = android.R.anim.slide_in_left
-                            exit = android.R.anim.slide_out_right
+            val imageView: ImageView = itemView.findViewById(R.id.image_view_item_transform)
+            val textView: TextView = itemView.findViewById(R.id.text_view_item_transform)
+            val playButton: MaterialButton = itemView.findViewById(R.id.play_button)
+            init {
+                itemView.setOnClickListener {
+                    model.updatePos(absoluteAdapterPosition)
+                    fragment.findNavController().navigate(R.id.nav_photo_detail,
+                        null,
+                        navOptions {
+                            anim {
+                                enter = android.R.anim.slide_in_left
+                                exit = android.R.anim.slide_out_right
+                            }
                         }
+                    )
+                }
+                playButton.setOnClickListener {
+                    model.updatePos(absoluteAdapterPosition)
+                    if (fragment.isPlaying) {
+                        fragment.stopAudio()
+                        fragment.playAudio()
+                    } else {
+                        fragment.playAudio()
                     }
-                )
+                }
+
+            }
+
+            fun bind(photoVoice: PhotoVoice) {
+                textView.text = photoVoice.created.toString()
+                imageView.load(photoVoice.photo) {
+                    crossfade(true)
+                    transformations(CircleCropTransformation())
+                }
             }
 
         }
-        fun bind(photoVoice: PhotoVoice){
-            textView.text = photoVoice.created.toString()
-            imageView.load(photoVoice.photo){
-                crossfade(true)
-                transformations(CircleCropTransformation())
-            }
-        }
 
-    }
     }
 }
 
