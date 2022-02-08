@@ -36,10 +36,9 @@ import java.io.IOException
 
 
 class PhotoFragment : Fragment() {
-    private lateinit var allFiles: Array<File>
+
     private var mediaPlayer: MediaPlayer? = null
     private var isPlaying = false
-    private var fileToPlay: File? = null
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
     private lateinit var playerSheet: ConstraintLayout
 
@@ -95,9 +94,6 @@ class PhotoFragment : Fragment() {
         playerHeader = view.findViewById(R.id.player_header_title)
         playerFilename = view.findViewById(R.id.player_filename)
         playerSeekbar = view.findViewById(R.id.player_seekbar)
-        val path = requireActivity().getExternalFilesDir("/")!!.absolutePath
-        val directory = File(path)
-        allFiles = directory.listFiles()
 
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {

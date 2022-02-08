@@ -22,13 +22,13 @@
         android:layout_alignParentTop="true"
         android:layout_centerVertical="true"
         android:layout_marginTop="3dp"
-        android:layout_above="@id/caption_detail"
+        android:layout_above="@id/detail_caption_detail"
         android:contentDescription="Image"
         android:scaleType="centerInside"
         android:src="@drawable/avatar_10" />
 
     <TextView
-        android:id="@+id/caption_detail"
+        android:id="@+id/detail_caption_detail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
@@ -49,7 +49,7 @@
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <ImageButton
-            android:id="@+id/player_play_btn"
+            android:id="@+id/detail_player_play_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -58,7 +58,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/caption_detail"
+            app:layout_constraintTop_toBottomOf="@+id/detail_caption_detail"
             app:srcCompat="@drawable/ic_baseline_play_arrow_24"
             tools:ignore="NotSibling" />
 
@@ -68,10 +68,10 @@
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
             android:padding="16dp"
-            app:layout_constraintBottom_toBottomOf="@+id/player_play_btn"
-            app:layout_constraintEnd_toStartOf="@+id/player_play_btn"
+            app:layout_constraintBottom_toBottomOf="@+id/detail_player_play_btn"
+            app:layout_constraintEnd_toStartOf="@+id/detail_player_play_btn"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/player_play_btn"
+            app:layout_constraintTop_toTopOf="@+id/detail_player_play_btn"
             app:srcCompat="@drawable/ic_baseline_fast_rewind_24" />
 
         <ImageButton
@@ -80,21 +80,21 @@
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
             android:padding="16dp"
-            app:layout_constraintBottom_toBottomOf="@+id/player_play_btn"
+            app:layout_constraintBottom_toBottomOf="@+id/detail_player_play_btn"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/player_play_btn"
-            app:layout_constraintTop_toTopOf="@+id/player_play_btn"
+            app:layout_constraintStart_toEndOf="@+id/detail_player_play_btn"
+            app:layout_constraintTop_toTopOf="@+id/detail_player_play_btn"
             app:srcCompat="@drawable/ic_baseline_fast_forward_24" />
 
         <SeekBar
-            android:id="@+id/player_seekbar"
+            android:id="@+id/detail_player_seekbar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="32dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/player_play_btn" />
+            app:layout_constraintTop_toBottomOf="@id/detail_player_play_btn" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
