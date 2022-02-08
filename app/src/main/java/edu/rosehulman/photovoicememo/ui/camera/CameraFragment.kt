@@ -74,8 +74,8 @@ class CameraFragment : Fragment() {
         binding = FragmentCameraBinding.inflate(inflater, container, false)
         photoViewModel = ViewModelProvider(requireActivity()).get(PhotoVoiceViewModel::class.java)
 
-        takeImage()
         showPictureDialog()
+
         return binding.root
     }
 
@@ -225,8 +225,30 @@ class CameraFragment : Fragment() {
         }
 
     }
-
     private fun showPictureDialog() {
+        val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        builder.setTitle("Choose a photo source")
+        builder.setMessage("Would you like to take a new picture?\nOr choose an existing one?")
+        builder.setPositiveButton("Take Picture") { _, _ ->
+            takeImage()
+        }
+
+        builder.setNegativeButton("Choose Picture") { _, _ ->
+            selectImageFromGallery()
+        }
+        builder.create().show()
+        showRecordDialog()
+    }
+    private fun selectImageFromGallery() = selectImageFromGalleryResult.launch("image/*")
+    private val selectImageFromGalleryResult =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            uri?.let {
+                binding.cameraImageView.setImageURI(uri)
+                addPhotoFromUri(uri)
+            }
+        }
+
+    private fun showRecordDialog() {
         val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
         builder.setTitle("Voice Memo Option")
         builder.setMessage("Would you like to record a short voice memo?\n")
@@ -235,7 +257,7 @@ class CameraFragment : Fragment() {
         }
         builder.setNegativeButton("NO, just photo") { _, _ ->
             photoViewModel.addPhotoVoice(PhotoVoice(photo = storageUriStringInFragment))
-            navController.navigate(R.id.nav_photo_detail)
+            navController.navigate(R.id.nav_photo)
         }
         builder.create().show()
     }
@@ -280,7 +302,7 @@ class CameraFragment : Fragment() {
         // TODO: Add to storage
         val imageId = Math.abs(Random.nextLong()).toString()
 
-        storageImagesRef.child(imageId).putStream((stream))
+        storageImagesRef.child(imageId).putStream(stream)
             .continueWithTask { task ->
                 if (!task.isSuccessful) {
                     task.exception?.let {
@@ -291,6 +313,7 @@ class CameraFragment : Fragment() {
             }.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     storageUriStringInFragment = task.result.toString()
+
                     Log.d(Constants.TAG, "Got download uri: $storageUriStringInFragment")
                 } else {
                     // Handle failures
@@ -306,7 +329,7 @@ class CameraFragment : Fragment() {
                 alertDialog.setPositiveButton(
                     "OKAY"
                 ) { dialog, which ->
-                    navController.navigate(R.id.nav_photo_detail)
+                    navController.navigate(R.id.nav_photo)
                     isRecording = false
                 }
                 alertDialog.setNegativeButton("CANCEL", null)
@@ -316,7 +339,7 @@ class CameraFragment : Fragment() {
 
             } else {
                 uploadRecording()
-                navController.navigate(R.id.nav_photo_detail)
+                navController.navigate(R.id.nav_photo)
             }
         }
         binding.recordButton.setOnClickListener{

@@ -17,12 +17,16 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import coil.transform.CircleCropTransformation
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import edu.rosehulman.photovoicememo.R
 import edu.rosehulman.photovoicememo.databinding.FragmentAlbumBinding
 import edu.rosehulman.photovoicememo.model.Constants
 import edu.rosehulman.photovoicememo.model.PhotoVoice
+import edu.rosehulman.photovoicememo.model.PhotoVoiceViewModel
+import edu.rosehulman.photovoicememo.ui.Photo.PhotoFragment
 
 
 /**
@@ -50,43 +54,35 @@ class AlbumFragment : Fragment() {
         val adapter = AlbumAdapter(this)
         recyclerView?.adapter = adapter
         recyclerView?.layoutManager =  GridLayoutManager(requireContext(),2)
-        model.texts.observe(viewLifecycleOwner, {
-            adapter.submitList(it)
-        })
+//        model.texts.observe(viewLifecycleOwner, {
+//            adapter.submitList(it)
+//        })
         return binding.root
     }
 
 
 
-    class AlbumAdapter(val fragment: AlbumFragment) :
-        ListAdapter<String, AlbumViewHolder>(object : DiffUtil.ItemCallback<String>() {
+    class AlbumAdapter(val fragment: AlbumFragment): RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder>()  {
+        val model = ViewModelProvider(fragment.requireActivity()).get(PhotoVoiceViewModel::class.java)
 
-            override fun areItemsTheSame(oldItem: String, newItem: String): Boolean =
-                oldItem == newItem
-
-            override fun areContentsTheSame(oldItem: String, newItem: String): Boolean =
-                oldItem == newItem
-        }) {
-
-
-        private val drawables = listOf(
-            R.drawable.avatar_1,
-            R.drawable.avatar_2,
-            R.drawable.avatar_3,
-            R.drawable.avatar_4,
-            R.drawable.avatar_5,
-            R.drawable.avatar_6,
-            R.drawable.avatar_7,
-            R.drawable.avatar_8,
-            R.drawable.avatar_9,
-            R.drawable.avatar_10,
-            R.drawable.avatar_11,
-            R.drawable.avatar_12,
-            R.drawable.avatar_13,
-            R.drawable.avatar_14,
-            R.drawable.avatar_15,
-            R.drawable.avatar_16,
-        )
+//        private val drawables = listOf(
+//            R.drawable.avatar_1,
+//            R.drawable.avatar_2,
+//            R.drawable.avatar_3,
+//            R.drawable.avatar_4,
+//            R.drawable.avatar_5,
+//            R.drawable.avatar_6,
+//            R.drawable.avatar_7,
+//            R.drawable.avatar_8,
+//            R.drawable.avatar_9,
+//            R.drawable.avatar_10,
+//            R.drawable.avatar_11,
+//            R.drawable.avatar_12,
+//            R.drawable.avatar_13,
+//            R.drawable.avatar_14,
+//            R.drawable.avatar_15,
+//            R.drawable.avatar_16,
+//        )
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumViewHolder {
             //val view = AlbumItemTransformBinding.inflate(LayoutInflater.from(parent.context))
@@ -95,39 +91,43 @@ class AlbumFragment : Fragment() {
         }
 
         override fun onBindViewHolder(holder: AlbumViewHolder, position: Int) {
-            holder.textView.text = getItem(position)
-
-            holder.imageView.setImageDrawable(
-                ResourcesCompat.getDrawable(holder.imageView.resources, drawables[position], null)
-            )
+            holder.bind(model.getPhotoVoiceAt(position))
+//            holder.textView.text = getItem(position)
+//            holder.imageView.setImageDrawable(
+//                ResourcesCompat.getDrawable(holder.imageView.resources, drawables[position], null)
+//            )
         }
 
+    inner class AlbumViewHolder(itemView: View, fragment: AlbumFragment) : RecyclerView.ViewHolder(itemView) {
+
+        val imageView: ImageView =itemView.findViewById(R.id.thumbnail_view)
+        val textView: TextView = itemView.findViewById(R.id.caption_detail)
+
+        init {
+            itemView.setOnClickListener{
+                fragment.findNavController().navigate(R.id.nav_photo,
+                    null,
+                    navOptions{
+                        anim{
+                            enter = android.R.anim.slide_in_left
+                            exit = android.R.anim.slide_out_right
+                        }
+                    }
+                )
+            }
+
+        }
+        fun bind(photoVoice: PhotoVoice){
+            textView.text = photoVoice.created.toString()
+            imageView.load(photoVoice.photo){
+                crossfade(true)
+                transformations(CircleCropTransformation())
+            }
         }
     }
+
+        override fun getItemCount() = model.size()
+    }
+}
 
 //     class AlbumViewHolder(binding: AlbumItemTransformBinding) : RecyclerView.ViewHolder(binding.root) {
-class AlbumViewHolder(itemView: View, fragment: AlbumFragment) : RecyclerView.ViewHolder(itemView) {
-
-    val imageView: ImageView =itemView.findViewById(R.id.thumbnail_view)
-    val textView: TextView = itemView.findViewById(R.id.caption_detail)
-
-    init {
-             itemView.setOnClickListener{
-                 fragment.findNavController().navigate(R.id.nav_photo,
-                     null,
-                     navOptions{
-                         anim{
-                             enter = android.R.anim.slide_in_left
-                             exit = android.R.anim.slide_out_right
-                         }
-                     }
-                 )
-             }
-
-    }
-
-
-
-
-
-}

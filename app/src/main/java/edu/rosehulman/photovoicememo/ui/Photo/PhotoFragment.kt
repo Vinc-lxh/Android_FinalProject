@@ -1,15 +1,19 @@
 package edu.rosehulman.photovoicememo.ui.Photo
 
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import androidx.recyclerview.widget.DiffUtil
@@ -19,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.CircleCropTransformation
 import edu.rosehulman.photovoicememo.R
+import edu.rosehulman.photovoicememo.databinding.FragmentCameraBinding
 import edu.rosehulman.photovoicememo.databinding.FragmentPhotoBinding
 import edu.rosehulman.photovoicememo.model.PhotoVoice
 import edu.rosehulman.photovoicememo.model.PhotoVoiceViewModel
@@ -28,6 +33,7 @@ class PhotoFragment : Fragment() {
 
     private lateinit var model: PhotoVoiceViewModel
     private lateinit var binding: FragmentPhotoBinding
+//    private lateinit var binding2: FragmentCameraBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,7 +48,11 @@ class PhotoFragment : Fragment() {
         recyclerView.adapter = adapter
         recyclerView.setHasFixedSize(true)
         recyclerView.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
+        binding.addFab.setOnClickListener {
+            findNavController().navigate(R.id.nav_camera)
 
+
+        }
 
 //        model.texts.observe(viewLifecycleOwner, {
 //            adapter.submitList(it)
@@ -50,10 +60,14 @@ class PhotoFragment : Fragment() {
         return binding.root
     }
 
+
     companion object{
         const val fragmentName = "PhotoFragment"
     }
-    class PhotoAdapter(val fragment: PhotoFragment) : RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder>() {//???
+
+
+
+    class PhotoAdapter(val fragment: PhotoFragment) : RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder>() {
             val model = ViewModelProvider(fragment.requireActivity()).get(PhotoVoiceViewModel::class.java)
 
 //            override fun areItemsTheSame(oldItem: String, newItem: String): Boolean =
