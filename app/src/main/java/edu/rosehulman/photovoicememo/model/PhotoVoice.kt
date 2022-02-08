@@ -6,7 +6,7 @@ import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.ServerTimestamp
 
 data class PhotoVoice(
-    var photo: String = "", var voice: String = ""
+    var photo: String = "", var voice: String = "",var albumID: String = ""
 ) {
     @get:Exclude
     var id = ""
@@ -17,7 +17,6 @@ data class PhotoVoice(
     companion object{
         const val COLLECTION_PATH = "PhotoVoice"
         const val CREATED_KEY = "created"
-
         fun from(snapshot: DocumentSnapshot): PhotoVoice{
             val mq = snapshot.toObject(PhotoVoice::class.java)!!
             mq.id = snapshot.id

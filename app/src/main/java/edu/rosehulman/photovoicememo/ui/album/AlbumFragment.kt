@@ -1,32 +1,32 @@
 package edu.rosehulman.photovoicememo.ui.album
 
-import android.graphics.Color
+import android.app.AlertDialog
+import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.CircleCropTransformation
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import coil.transform.RoundedCornersTransformation
+import com.google.android.material.textfield.TextInputLayout
 import edu.rosehulman.photovoicememo.R
 import edu.rosehulman.photovoicememo.databinding.FragmentAlbumBinding
+import edu.rosehulman.photovoicememo.model.Album
+import edu.rosehulman.photovoicememo.model.Album.Companion.defaultAlbumPage
 import edu.rosehulman.photovoicememo.model.Constants
-import edu.rosehulman.photovoicememo.model.PhotoVoice
 import edu.rosehulman.photovoicememo.model.PhotoVoiceViewModel
-import edu.rosehulman.photovoicememo.ui.Photo.PhotoFragment
 
 
 /**
@@ -37,74 +37,98 @@ import edu.rosehulman.photovoicememo.ui.Photo.PhotoFragment
  */
 class AlbumFragment : Fragment() {
 
-    private lateinit var model: AlbumViewModel
+    private lateinit var model: PhotoVoiceViewModel
     private lateinit var binding: FragmentAlbumBinding
-
+    private lateinit var adapter:AlbumAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        model = ViewModelProvider(this).get(AlbumViewModel::class.java)
+        model = ViewModelProvider(this).get(PhotoVoiceViewModel::class.java)
         binding = FragmentAlbumBinding.inflate(inflater, container, false)
-//        val root: View = binding.root
-
         val recyclerView = binding.recyclerViewAlbum
-        val adapter = AlbumAdapter(this)
+        adapter = AlbumAdapter(this)
+        adapter.addAlbumListener(fragmentName)
         recyclerView?.adapter = adapter
+        recyclerView?.setHasFixedSize(true)
         recyclerView?.layoutManager =  GridLayoutManager(requireContext(),2)
-//        model.texts.observe(viewLifecycleOwner, {
-//            adapter.submitList(it)
-//        })
+        binding.addAlbum?.setOnClickListener {
+            createTextDialog(requireContext()){
+                adapter.addAlbum(Album(name = it, url = defaultAlbumPage))
+           }
+        }
         return binding.root
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        adapter.removeListener(fragmentName)
+    }
 
+    companion object{
+        const val fragmentName = "AlbumFragment"
+    }
+
+
+     fun createTextDialog(context: Context,observer: (String) -> Unit) {
+            val textInputLayout = TextInputLayout(context)
+            textInputLayout.setPadding(
+                resources.getDimensionPixelOffset(R.dimen.dp_19),
+                0,
+                resources.getDimensionPixelOffset(R.dimen.dp_19),
+                0
+            )
+            val input = EditText(context)
+            textInputLayout.addView(input)
+
+            val alert = AlertDialog.Builder(context)
+                .setTitle("Enter your album name")
+                .setView(textInputLayout)
+                .setPositiveButton("Submit") { dialog, _ ->
+                    val txt = input.text.toString()
+                    Log.d(Constants.TAG,"txt is "+txt)
+                    observer(txt)
+                }
+                .setNegativeButton("Cancel") { dialog, _ ->
+                    dialog.cancel()
+                }.create()
+
+            alert.show()
+        }
 
     class AlbumAdapter(val fragment: AlbumFragment): RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder>()  {
         val model = ViewModelProvider(fragment.requireActivity()).get(PhotoVoiceViewModel::class.java)
 
-//        private val drawables = listOf(
-//            R.drawable.avatar_1,
-//            R.drawable.avatar_2,
-//            R.drawable.avatar_3,
-//            R.drawable.avatar_4,
-//            R.drawable.avatar_5,
-//            R.drawable.avatar_6,
-//            R.drawable.avatar_7,
-//            R.drawable.avatar_8,
-//            R.drawable.avatar_9,
-//            R.drawable.avatar_10,
-//            R.drawable.avatar_11,
-//            R.drawable.avatar_12,
-//            R.drawable.avatar_13,
-//            R.drawable.avatar_14,
-//            R.drawable.avatar_15,
-//            R.drawable.avatar_16,
-//        )
-
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumViewHolder {
-            //val view = AlbumItemTransformBinding.inflate(LayoutInflater.from(parent.context))
             val view = LayoutInflater.from(parent.context).inflate(R.layout.album_item_transform,parent,false)
-            return AlbumViewHolder(view,fragment)
+            return AlbumViewHolder(view)
         }
 
         override fun onBindViewHolder(holder: AlbumViewHolder, position: Int) {
-            holder.bind(model.getPhotoVoiceAt(position))
-//            holder.textView.text = getItem(position)
-//            holder.imageView.setImageDrawable(
-//                ResourcesCompat.getDrawable(holder.imageView.resources, drawables[position], null)
-//            )
+            holder.bind(model.getAlbumAt(position))
         }
-
-    inner class AlbumViewHolder(itemView: View, fragment: AlbumFragment) : RecyclerView.ViewHolder(itemView) {
+        fun addAlbumListener(fragmentName: String) {
+            model.addAlbumListener(fragmentName){
+                notifyDataSetChanged()
+            }
+        }
+        fun removeListener(fragmentName: String) {
+            model.removeListener(fragmentName)
+        }
+        fun addAlbum(album: Album) {
+            model.addAlbum(album)
+        }
+    inner class AlbumViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         val imageView: ImageView =itemView.findViewById(R.id.thumbnail_view)
         val textView: TextView = itemView.findViewById(R.id.caption_detail)
 
         init {
             itemView.setOnClickListener{
+                model.updateAlbumPos(absoluteAdapterPosition)
+                Log.d(Constants.TAG,"currently at album $absoluteAdapterPosition")
                 fragment.findNavController().navigate(R.id.nav_photo,
                     null,
                     navOptions{
@@ -117,17 +141,18 @@ class AlbumFragment : Fragment() {
             }
 
         }
-        fun bind(photoVoice: PhotoVoice){
-            textView.text = photoVoice.created.toString()
-            imageView.load(photoVoice.photo){
+        fun bind(album: Album){
+            textView.text = album.name
+            imageView.load(album.url){
                 crossfade(true)
-                transformations(CircleCropTransformation())
+                transformations(RoundedCornersTransformation())
             }
         }
     }
 
-        override fun getItemCount() = model.size()
+        override fun getItemCount() = model.Albumsize()
+
+
     }
 }
 
-//     class AlbumViewHolder(binding: AlbumItemTransformBinding) : RecyclerView.ViewHolder(binding.root) {

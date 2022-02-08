@@ -31,8 +31,9 @@ import edu.rosehulman.photovoicememo.databinding.FragmentPhotoBinding
 import edu.rosehulman.photovoicememo.model.Constants
 import edu.rosehulman.photovoicememo.model.PhotoVoice
 import edu.rosehulman.photovoicememo.model.PhotoVoiceViewModel
-import java.io.File
 import java.io.IOException
+
+
 
 
 class PhotoFragment : Fragment() {
@@ -54,7 +55,6 @@ class PhotoFragment : Fragment() {
     private lateinit var model: PhotoVoiceViewModel
     private lateinit var binding: FragmentPhotoBinding
     private lateinit var adapter: PhotoAdapter
-//    private lateinit var binding2: FragmentCameraBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -74,19 +74,19 @@ class PhotoFragment : Fragment() {
                 DividerItemDecoration.VERTICAL
             )
         )
-
         binding.addFab.setOnClickListener {
             findNavController().navigate(R.id.nav_camera)
         }
-
-//        model.texts.observe(viewLifecycleOwner, {
-//            adapter.submitList(it)
-//        })
         return binding.root
+    }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        adapter.removeListener(fragmentName)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
 
         playerSheet = view.findViewById(R.id.player_sheet)
         bottomSheetBehavior = BottomSheetBehavior.from<ConstraintLayout>(playerSheet)
@@ -241,20 +241,15 @@ class PhotoFragment : Fragment() {
 //        }
 
 
-
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoViewHolder {
-
             val view = LayoutInflater.from(parent.context).inflate(R.layout.item_transform,parent,false)
             return PhotoViewHolder(view)
         }
 
         override fun onBindViewHolder(holder: PhotoViewHolder, position: Int) {
             holder.bind(model.getPhotoVoiceAt(position))
-//            holder.textView.text = getItem(position)
-//            holder.imageView.setImageDrawable(
-//                ResourcesCompat.getDrawable(holder.imageView.resources, drawables[position], null)
-//            )
         }
+
         fun addListener(fragmentName: String){
             model.addListener(fragmentName){
                 notifyDataSetChanged()

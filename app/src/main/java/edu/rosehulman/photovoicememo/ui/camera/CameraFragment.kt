@@ -73,9 +73,11 @@ class CameraFragment : Fragment() {
     ): View {
         binding = FragmentCameraBinding.inflate(inflater, container, false)
         photoViewModel = ViewModelProvider(requireActivity()).get(PhotoVoiceViewModel::class.java)
+        photoViewModel.addListener(fragmentName){
 
-        showPictureDialog()
-
+        }
+        setupButton()
+        takeImage()
         return binding.root
     }
 
@@ -97,15 +99,11 @@ class CameraFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         //Intitialize Variables
         navController = Navigation.findNavController(view)
         doneBtn = view.findViewById(R.id.done_record_button)
         recordBtn = view.findViewById(R.id.record_button)
         timer = view.findViewById(R.id.record_timer)
-
-        setupButton()
-
     }
 
 
@@ -180,17 +178,13 @@ class CameraFragment : Fragment() {
                 if (task.isSuccessful) {
                     voiceUriStringInFragment = task.result.toString()
                     Log.d(Constants.TAG, "Got download uri: $voiceUriStringInFragment")
-                    photoViewModel.addPhotoVoice(PhotoVoice(photo = storageUriStringInFragment,voice = voiceUriStringInFragment))
+                    photoViewModel.addPhotoVoice(PhotoVoice(photo = storageUriStringInFragment,voice = voiceUriStringInFragment, albumID = photoViewModel.getCurrentAlbum().id))
                 } else {
                     // Handle failures
                     // ...
                 }
             }
-
-// Register observers to listen for when the download is done or if it fails
         uploadTask.addOnFailureListener {
-            // Handle unsuccessful uploads
-
 
             Log.d(Constants.TAG, "uploaded recording")
         }.addOnSuccessListener { taskSnapshot ->
@@ -237,7 +231,7 @@ class CameraFragment : Fragment() {
             selectImageFromGallery()
         }
         builder.create().show()
-        showRecordDialog()
+
     }
     private fun selectImageFromGallery() = selectImageFromGalleryResult.launch("image/*")
     private val selectImageFromGalleryResult =
@@ -262,14 +256,6 @@ class CameraFragment : Fragment() {
         builder.create().show()
     }
 
-//    private fun takeImage() {
-//        lifecycleScope.launchWhenStarted {
-//            getTmpFileUri().let { uri ->
-//                latestTmpUri = uri
-//                takeImageResult.launch(uri)
-//            }
-//        }
-//    }
 
     private fun getTmpFileUri(): Uri {
         val storageDir: File = requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
@@ -327,8 +313,10 @@ class CameraFragment : Fragment() {
             if (isRecording) {
                 val alertDialog = AlertDialog.Builder(context)
                 alertDialog.setPositiveButton(
-                    "OKAY"
+                    "OKAY",
+
                 ) { dialog, which ->
+                    photoViewModel.addPhotoVoice(PhotoVoice(photo = storageUriStringInFragment,voice = voiceUriStringInFragment, albumID = photoViewModel.getCurrentAlbum().id))
                     navController.navigate(R.id.nav_photo)
                     isRecording = false
                 }

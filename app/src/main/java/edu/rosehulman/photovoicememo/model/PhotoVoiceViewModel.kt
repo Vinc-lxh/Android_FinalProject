@@ -7,23 +7,26 @@ import com.google.firebase.firestore.*
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import edu.rosehulman.photovoicememo.User
+import edu.rosehulman.photovoicememo.model.Album.Companion.defaultAlbumPage
 import kotlin.random.Random
 
 class PhotoVoiceViewModel: ViewModel() {
     private var photosvoice = ArrayList<PhotoVoice>()
+    private var albnum = arrayListOf<Album>()
     var currentPos = 0
-
+    var albumPos = 0
     lateinit var ref: CollectionReference
-//    var ref: CollectionReference = Firebase.firestore.collection(PhotoVoice.COLLECTION_PATH)
+    lateinit var albumRef: CollectionReference
 
     val subscriptions = HashMap<String, ListenerRegistration>()
     fun addListener(fragmentName: String, observer: () -> Unit) {
         val uid = Firebase.auth.currentUser!!.uid
-        ref = Firebase.firestore.collection(User.COLLECTION_PATH). document(uid)
+        ref = Firebase.firestore.collection(User.COLLECTION_PATH).document(uid)
             .collection(PhotoVoice.COLLECTION_PATH)
 
         Log.d(Constants.TAG,"Adding listener for $fragmentName")
         val subscription = ref
+            .whereEqualTo("albumID",getCurrentAlbum().id)
             .orderBy(PhotoVoice.CREATED_KEY, Query.Direction.ASCENDING)
             .addSnapshotListener{ snapshot: QuerySnapshot?, error: FirebaseFirestoreException?->
                 error?.let{
@@ -34,42 +37,84 @@ class PhotoVoiceViewModel: ViewModel() {
                 snapshot?.documents?.forEach {
                     photosvoice.add(PhotoVoice.from(it))
                 }
+                if(photosvoice.size>0&&getCurrentAlbum().url.equals(defaultAlbumPage)){
+                    updateCurrentAlbumPage(photosvoice[0].photo)
+                }
                 observer()
             }
         subscriptions[fragmentName] = subscription
     }
+
+    fun addAlbumListener(fragmentName: String, observer: () -> Unit) {
+        val uid = Firebase.auth.currentUser!!.uid
+        albumRef = Firebase.firestore.collection(User.COLLECTION_PATH).document(uid)
+            .collection(Album.ALBUM_PATH)
+        Log.d(Constants.TAG,"Adding Album listener for $fragmentName")
+        val subscription = albumRef
+            .orderBy(PhotoVoice.CREATED_KEY, Query.Direction.ASCENDING)
+            .addSnapshotListener{ snapshot: QuerySnapshot?, error: FirebaseFirestoreException?->
+                error?.let{
+                    Log.d(Constants.TAG,"Error: $error")
+                    return@addSnapshotListener
+                }
+                albnum.clear()
+                snapshot?.documents?.forEach {
+                    albnum.add(Album.from(it))
+                }
+                observer()
+            }
+
+        subscriptions[fragmentName] = subscription
+    }
+
+//photo function
     fun getPhotoVoiceAt(position: Int):PhotoVoice{
         return photosvoice[position]
     }
-
     fun getCurrentPhoto() = getPhotoVoiceAt(currentPos)
-
     fun addPhotoVoice(photoVoice: PhotoVoice){
         val p = photoVoice ?: PhotoVoice(useGivenOrRandomCaption(""),useGivenOrRandom(""))
         ref.add(p)
     }
-
     fun updateCurrentPhoto(cap:String, url: String){
         photosvoice[currentPos].photo = useGivenOrRandomCaption(cap)
         photosvoice[currentPos].voice = useGivenOrRandom(url)
         ref.document(getCurrentPhoto().id).set(getCurrentPhoto())
     }
-
     fun removeCurrentPhoto(){
         ref.document(getCurrentPhoto().id).delete()
         currentPos = 0
     }
-
     fun updatePos(pos: Int){
         currentPos = pos
     }
-
-//    fun toggleCurrentPhoto() {
-//        photos[currentPos].isSelected = !photos[currentPos].isSelected
-//        ref.document(getCurrentPhoto().id).update("selected",true)
-//    }
-
     fun size() = photosvoice.size
+    //album function
+
+    fun getAlbumAt(position: Int):Album{
+        return albnum[position]
+    }
+    fun getCurrentAlbum() = getAlbumAt(albumPos)
+    fun addAlbum(alb: Album){
+        albumRef.add(alb)
+    }
+    fun updateCurrentAlbum(album:Album){
+        albnum[albumPos]= album
+        albumRef.document(getCurrentAlbum().id).set(album)
+    }
+    fun updateCurrentAlbumPage(Pageurl:String){
+        albnum[albumPos].url = Pageurl
+        albumRef.document(getCurrentAlbum().id).set(albnum[albumPos])
+    }
+    fun removeCurrentAlbum(){
+        albumRef.document(getCurrentAlbum().id).delete()
+        albumPos = 0
+    }
+    fun updateAlbumPos(pos: Int){
+        albumPos = pos
+    }
+    fun Albumsize() = albnum.size
+
 
     fun useGivenOrRandom(given: String): String {
         if (given.isNotBlank()) {
