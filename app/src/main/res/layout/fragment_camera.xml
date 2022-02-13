@@ -33,13 +33,14 @@
         android:layout_marginTop="20dp"
         android:layout_marginBottom="20dp"
         android:src="@drawable/ic_baseline_mic_24" />
+
     <ImageButton
         android:id="@+id/done_record_button"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_centerInParent="true"
         android:layout_marginLeft="60dp"
-       android:layout_toRightOf="@+id/record_button"
+        android:layout_toRightOf="@+id/record_button"
         android:src="@drawable/ic_baseline_check_circle_24" />
 
 </RelativeLayout>

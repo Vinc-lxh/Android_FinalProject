@@ -26,6 +26,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import edu.rosehulman.photovoicememo.BuildConfig
 import edu.rosehulman.photovoicememo.Constants
+import edu.rosehulman.photovoicememo.MainActivity
 import edu.rosehulman.photovoicememo.R
 import edu.rosehulman.photovoicememo.model.PhotoVoice
 import edu.rosehulman.photovoicememo.model.PhotoVoiceViewModel
@@ -326,6 +327,11 @@ class CameraFragment : Fragment() {
                 alertDialog.create().show()
 
             } else {
+                var loc= (activity as MainActivity).getLastLocation()
+                if(loc.equals("")){
+                    loc = (activity as MainActivity).getLastLocation()
+                }
+                Log.d(Constants.TAG, "location is $loc")
                 uploadRecording()
                 navController.navigate(R.id.nav_photo)
             }
