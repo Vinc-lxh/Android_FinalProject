@@ -16,6 +16,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
 import coil.load
 import coil.transform.CircleCropTransformation
+import coil.transform.RoundedCornersTransformation
 import edu.rosehulman.photovoicememo.R
 import edu.rosehulman.photovoicememo.databinding.FragmentPhotoDetailBinding
 import edu.rosehulman.photovoicememo.model.Constants
@@ -175,7 +176,7 @@ class PhotoDetailFragment : Fragment() {
         binding.detailCaptionDetail.text = photoVoice.created.toString()
         binding.photoDetailView.load(photoVoice.photo) {
                 crossfade(true)
-                transformations(CircleCropTransformation())
+                transformations(RoundedCornersTransformation())
         }
     }
 

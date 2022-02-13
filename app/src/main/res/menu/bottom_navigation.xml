@@ -8,11 +8,11 @@
             android:id="@+id/nav_album"
             android:icon="@drawable/ic_gallery_black_24dp"
             android:title="@string/menu_album" />
-        <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_baseline_add_circle_24"
-            android:title="@string/menu_camera"
-            />
+<!--        <item-->
+<!--            android:id="@+id/nav_camera"-->
+<!--            android:icon="@drawable/ic_baseline_add_circle_24"-->
+<!--            android:title="@string/menu_camera"-->
+<!--            />-->
         <item
             android:id="@+id/nav_profile"
             android:icon="@drawable/ic_baseline_person_24"

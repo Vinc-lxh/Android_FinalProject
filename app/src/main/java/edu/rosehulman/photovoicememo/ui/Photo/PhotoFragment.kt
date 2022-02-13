@@ -26,6 +26,7 @@ import coil.transform.CircleCropTransformation
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.button.MaterialButton
+import com.leinardi.android.speeddial.SpeedDialView
 import edu.rosehulman.photovoicememo.R
 import edu.rosehulman.photovoicememo.databinding.FragmentPhotoBinding
 import edu.rosehulman.photovoicememo.model.Constants
@@ -74,14 +75,37 @@ class PhotoFragment : Fragment() {
                 DividerItemDecoration.VERTICAL
             )
         )
-        binding.addFab.setOnClickListener {
-            findNavController().navigate(R.id.nav_camera)
-        }
+        initializeButtons()
+
         return binding.root
     }
     override fun onDestroyView() {
         super.onDestroyView()
         adapter.removeListener(fragmentName)
+    }
+
+    private fun initializeButtons(){
+//        binding.addFab.setOnClickListener {
+//            findNavController().navigate(R.id.nav_camera)
+//        }
+
+        binding.speedDialFab.inflate(R.menu.menu_speed_dial)
+        binding.speedDialFab.setOnActionSelectedListener(
+            SpeedDialView.OnActionSelectedListener { actionItem ->
+                when (actionItem.id) {
+                    R.id.action_local -> {
+
+                        binding.speedDialFab.close() // To close the Speed Dial with animation
+                        return@OnActionSelectedListener true // false will close it without animation
+                    }
+                    R.id.action_camera -> {
+                        findNavController().navigate(R.id.nav_camera)
+                        return@OnActionSelectedListener false
+                    }
+                }
+                false
+            })
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
