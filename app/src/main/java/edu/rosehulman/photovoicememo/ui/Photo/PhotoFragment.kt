@@ -1,5 +1,6 @@
 package edu.rosehulman.photovoicememo.ui.Photo
 
+import android.graphics.*
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
 import android.media.MediaPlayer.OnCompletionListener
@@ -13,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -55,6 +57,7 @@ class PhotoFragment : Fragment() {
     private lateinit var model: PhotoVoiceViewModel
     private lateinit var binding: FragmentPhotoBinding
     private lateinit var adapter: PhotoAdapter
+    private lateinit var recyclerView:RecyclerView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -63,7 +66,7 @@ class PhotoFragment : Fragment() {
     ): View {
         model = ViewModelProvider(this).get(PhotoVoiceViewModel::class.java)
         binding = FragmentPhotoBinding.inflate(inflater, container, false)
-        val recyclerView = binding.recyclerviewPhoto
+        recyclerView = binding.recyclerviewPhoto
         adapter = PhotoAdapter(this)
         adapter.addListener(fragmentName)
         recyclerView.adapter = adapter
@@ -74,9 +77,21 @@ class PhotoFragment : Fragment() {
                 DividerItemDecoration.VERTICAL
             )
         )
+        settupRecycleViewSwipeForDelete()
+        initializeButtons()
 
+        return binding.root
+    }
+
+    private fun settupRecycleViewSwipeForDelete() {
         val touchHelperCallback: ItemTouchHelper.SimpleCallback =
             object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+                val deleteIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_delete_24)
+                val intrinsicWidth = deleteIcon?.intrinsicWidth
+                val intrinsicHeight = deleteIcon?.intrinsicHeight
+                val background = ColorDrawable()
+                val clearPaint = Paint().apply { xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR) }
+                val backgroundColor = Color.parseColor("#f44336")
                 override fun onMove(
                     recyclerView: RecyclerView,
                     viewHolder: RecyclerView.ViewHolder,
@@ -90,14 +105,62 @@ class PhotoFragment : Fragment() {
                     adapter.deletePhoto(viewHolder.absoluteAdapterPosition)
                 }
 
+                override fun onChildDraw(
+                    c: Canvas,
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    dX: Float,
+                    dY: Float,
+                    actionState: Int,
+                    isCurrentlyActive: Boolean
+                ) {
+
+                    val itemView = viewHolder.itemView
+                    val itemHeight = itemView.bottom - itemView.top
+                    val isCanceled = dX == 0f && !isCurrentlyActive
+
+                    if (isCanceled) {
+                        clearCanvas(c, itemView.right + dX, itemView.top.toFloat(), itemView.right.toFloat(), itemView.bottom.toFloat())
+                        super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                        return
+                    }
+
+                    // Draw the red delete background
+                    background.color = backgroundColor
+                    background.setBounds(itemView.right + dX.toInt(), itemView.top, itemView.right, itemView.bottom)
+                    background.draw(c)
+
+                    // Calculate position of delete icon
+                    val deleteIconTop = itemView.top + (itemHeight - intrinsicHeight!!) / 2
+                    val deleteIconMargin = (itemHeight - intrinsicHeight) / 2
+                    val deleteIconLeft = itemView.right - deleteIconMargin - intrinsicWidth!!
+                    val deleteIconRight = itemView.right - deleteIconMargin
+                    val deleteIconBottom = deleteIconTop + intrinsicHeight
+
+                    // Draw the delete icon
+                    deleteIcon?.setBounds(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom)
+                    deleteIcon?.draw(c)
+
+                    super.onChildDraw(
+                        c,
+                        recyclerView,
+                        viewHolder,
+                        dX,
+                        dY,
+                        actionState,
+                        isCurrentlyActive
+                    )
+                }
+
+                private fun clearCanvas(c: Canvas?, left: Float, top: Float, right: Float, bottom: Float) {
+                    c?.drawRect(left, top, right, bottom, clearPaint)
+                }
+
             }
         val itemTouchHelper = ItemTouchHelper(touchHelperCallback)
         itemTouchHelper.attachToRecyclerView(recyclerView)
-
-        initializeButtons()
-
-        return binding.root
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         adapter.removeListener(fragmentName)
@@ -231,7 +294,10 @@ class PhotoFragment : Fragment() {
                 null
             )
         )
-        playerFilename.text = adapter.model.getCurrentPhoto().created.toString()
+        val sdf = SimpleDateFormat("MM/dd/yyyy", Locale.US)
+        val date = adapter.model.getCurrentPhoto().created?.toDate()?: Date()
+        val dateStr: String = sdf.format(date)
+        playerFilename.text = dateStr
         playerHeader.text = "Playing"
         //Play the audio
         isPlaying = true
