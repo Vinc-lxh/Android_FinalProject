@@ -3,6 +3,7 @@ package edu.rosehulman.photovoicememo.ui.album
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
+import android.media.Image
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -20,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.CircleCropTransformation
 import coil.transform.RoundedCornersTransformation
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
 import edu.rosehulman.photovoicememo.R
 import edu.rosehulman.photovoicememo.databinding.FragmentAlbumBinding
@@ -51,6 +54,7 @@ class AlbumFragment : Fragment() {
         val recyclerView = binding.recyclerViewAlbum
         adapter = AlbumAdapter(this)
         adapter.addAlbumListener(fragmentName)
+        //adapter.addPhotoListner(fragmentName)
         recyclerView?.adapter = adapter
         recyclerView?.setHasFixedSize(true)
         recyclerView?.layoutManager =  GridLayoutManager(requireContext(),2)
@@ -114,6 +118,11 @@ class AlbumFragment : Fragment() {
                 notifyDataSetChanged()
             }
         }
+        fun addPhotoListner(fragmentName: String) {
+            model.addListener(fragmentName){
+                notifyDataSetChanged()
+            }
+        }
         fun removeListener(fragmentName: String) {
             model.removeListener(fragmentName)
         }
@@ -124,7 +133,7 @@ class AlbumFragment : Fragment() {
 
         val imageView: ImageView =itemView.findViewById(R.id.thumbnail_view)
         val textView: TextView = itemView.findViewById(R.id.caption_detail)
-
+        val deleteAlbumButton: ImageView = itemView.findViewById(R.id.deleteAlbum)
         init {
             itemView.setOnClickListener{
                 model.updateAlbumPos(absoluteAdapterPosition)
@@ -139,10 +148,31 @@ class AlbumFragment : Fragment() {
                     }
                 )
             }
+            deleteAlbumButton.setOnClickListener {
+                val builder = androidx.appcompat.app.AlertDialog.Builder(itemView.context)
+                builder.setTitle("Delete Album")
+                builder.setMessage("Do you want to delete the album ${model.getCurrentAlbum().name} and all corresponding photo voice?")
+                builder.setPositiveButton("Yes") { _, _ ->
+                    model.updateAlbumPos(absoluteAdapterPosition)
+                    model.removeCurrentAlbum()
+                    notifyDataSetChanged()
+                }
+
+                builder.setNegativeButton("No") { dia, _ ->
+                   dia.dismiss()
+                }
+                builder.create().show()
+            }
 
         }
         fun bind(album: Album){
-            textView.text = album.name
+            if(album.name.length>5){
+                textView.text = album.name.substring(0,5)+"..."
+            }
+            else{
+                textView.text = album.name
+            }
+
             imageView.load(album.url){
                 crossfade(true)
                 transformations(RoundedCornersTransformation())

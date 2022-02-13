@@ -1,6 +1,8 @@
 package edu.rosehulman.photovoicememo.ui.camera
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,17 +13,26 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import edu.rosehulman.photovoicememo.databinding.FragmentCameraBinding
 import android.content.pm.PackageManager
+import android.location.Geocoder
+import android.location.Location
+import android.location.LocationManager
 import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Environment
+import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
 import android.widget.*
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat.getSystemService
 
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import com.google.android.gms.location.*
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import edu.rosehulman.photovoicememo.BuildConfig
@@ -30,6 +41,7 @@ import edu.rosehulman.photovoicememo.MainActivity
 import edu.rosehulman.photovoicememo.R
 import edu.rosehulman.photovoicememo.model.PhotoVoice
 import edu.rosehulman.photovoicememo.model.PhotoVoiceViewModel
+import edu.rosehulman.photovoicememo.ui.Photo.PhotoFragment
 import edu.rosehulman.photovoicememo.ui.Photo.PhotoViewModel
 import java.io.File
 import java.io.IOException
@@ -44,14 +56,16 @@ class CameraFragment : Fragment() {
     private lateinit var binding: FragmentCameraBinding
     private lateinit var mediaRecorder: MediaRecorder
     private lateinit var navController: NavController
+    private var startRecording: Boolean = false
     private var isRecording: Boolean = false
     private var recordFile: String = ""
     private lateinit var doneBtn: ImageButton
     private lateinit var recordBtn: ImageButton
     private lateinit var timer: Chronometer
     lateinit var imageView:ImageView
-    private var latestTmpUri: Uri? = null
-
+    private var loc: String = ""
+    lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    val PERMISSION_ID = 2765
     private val storageImagesRef = Firebase.storage
         .reference
         .child("images")
@@ -72,16 +86,30 @@ class CameraFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        setFragmentResultListener("requestKey") { requestKey, bundle ->
+            val result = bundle.getString("bundleKey")
+            //Log.d(edu.rosehulman.photovoicememo.model.Constants.TAG,"uri getted is $result")
+            //Log.d(edu.rosehulman.photovoicememo.model.Constants.TAG,"uri getted to Uri is ${result?.toUri()}")
+            if (result != null) {
+                binding.cameraImageView.setImageURI(result.toUri())
+                addPhotoFromUri(result.toUri())
+            }
+
+        }
         binding = FragmentCameraBinding.inflate(inflater, container, false)
         photoViewModel = ViewModelProvider(requireActivity()).get(PhotoVoiceViewModel::class.java)
         photoViewModel.addListener(fragmentName){
 
         }
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        getLastLocation()
         setupButton()
-        takeImage()
         return binding.root
     }
-
+//    override fun onDestroyView() {
+//        super.onDestroyView()
+//        photoViewModel.removeListener(PhotoFragment.fragmentName)
+//    }
     val permissionLauncher = registerForActivityResult(
       ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -115,12 +143,7 @@ class CameraFragment : Fragment() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun checkCameraPermission(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            requireContext(),
-            android.Manifest.permission.CAMERA
-        ) == PackageManager.PERMISSION_GRANTED
-    }
+
 
     private fun stopRecording() {
         timer.stop()
@@ -131,7 +154,7 @@ class CameraFragment : Fragment() {
     }
 
     private fun startRecording() {
-
+        startRecording = true
         //Start timer from 0
         timer.base = SystemClock.elapsedRealtime()
         timer.start()
@@ -179,10 +202,9 @@ class CameraFragment : Fragment() {
                 if (task.isSuccessful) {
                     voiceUriStringInFragment = task.result.toString()
                     Log.d(Constants.TAG, "Got download uri: $voiceUriStringInFragment")
-                    photoViewModel.addPhotoVoice(PhotoVoice(photo = storageUriStringInFragment,voice = voiceUriStringInFragment, albumID = photoViewModel.getCurrentAlbum().id))
+                    photoViewModel.addPhotoVoice(PhotoVoice(photo = storageUriStringInFragment,voice = voiceUriStringInFragment, albumID = photoViewModel.getCurrentAlbum().id, location = loc ))
                 } else {
-                    // Handle failures
-                    // ...
+                    Log.d(Constants.TAG,"failureHere")
                 }
             }
         uploadTask.addOnFailureListener {
@@ -195,84 +217,6 @@ class CameraFragment : Fragment() {
     }
 
     //camera part---------------------------------------------------------------------------------------------------------------------------
-
-    private val takeImageResult =
-        registerForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
-            if (isSuccess) {
-                latestTmpUri?.let { uri ->
-                    binding.cameraImageView.setImageURI(uri)
-                    addPhotoFromUri(uri)
-                }
-            }
-        }
-
-
-    private fun takeImage() {
-        if(checkCameraPermission()){
-            lifecycleScope.launchWhenStarted {
-                getTmpFileUri().let { uri ->
-                    latestTmpUri = uri
-                    takeImageResult.launch(uri)
-                }
-            }
-        }else{
-            permissionLauncher.launch(android.Manifest.permission.CAMERA)
-        }
-
-    }
-    private fun showPictureDialog() {
-        val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
-        builder.setTitle("Choose a photo source")
-        builder.setMessage("Would you like to take a new picture?\nOr choose an existing one?")
-        builder.setPositiveButton("Take Picture") { _, _ ->
-            takeImage()
-        }
-
-        builder.setNegativeButton("Choose Picture") { _, _ ->
-            selectImageFromGallery()
-        }
-        builder.create().show()
-
-    }
-    private fun selectImageFromGallery() = selectImageFromGalleryResult.launch("image/*")
-    private val selectImageFromGalleryResult =
-        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            uri?.let {
-                binding.cameraImageView.setImageURI(uri)
-                addPhotoFromUri(uri)
-            }
-        }
-
-    private fun showRecordDialog() {
-        val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
-        builder.setTitle("Voice Memo Option")
-        builder.setMessage("Would you like to record a short voice memo?\n")
-        builder.setPositiveButton("Yes") { _, _ ->
-
-        }
-        builder.setNegativeButton("NO, just photo") { _, _ ->
-            photoViewModel.addPhotoVoice(PhotoVoice(photo = storageUriStringInFragment))
-            navController.navigate(R.id.nav_photo)
-        }
-        builder.create().show()
-    }
-
-
-    private fun getTmpFileUri(): Uri {
-        val storageDir: File = requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
-        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-        val tmpFile = File.createTempFile("JPEG_${timeStamp}_", ".png", storageDir).apply {
-            createNewFile()
-            deleteOnExit()
-        }
-        return FileProvider.getUriForFile(
-            requireContext(),
-            "${BuildConfig.APPLICATION_ID}.provider",
-            tmpFile
-        )
-    }
-
-
 
     private fun addPhotoFromUri(uri: Uri?) {
         if (uri == null) {
@@ -317,7 +261,9 @@ class CameraFragment : Fragment() {
                     "OKAY",
 
                 ) { dialog, which ->
-                    photoViewModel.addPhotoVoice(PhotoVoice(photo = storageUriStringInFragment,voice = voiceUriStringInFragment, albumID = photoViewModel.getCurrentAlbum().id))
+                    stopRecording()
+                    uploadRecording()
+//                    photoViewModel.addPhotoVoice(PhotoVoice(photo = storageUriStringInFragment,voice = voiceUriStringInFragment, albumID = photoViewModel.getCurrentAlbum().id))
                     navController.navigate(R.id.nav_photo)
                     isRecording = false
                 }
@@ -326,12 +272,17 @@ class CameraFragment : Fragment() {
                 alertDialog.setMessage("Are you sure, you want to stop the recording?")
                 alertDialog.create().show()
 
-            } else {
-                var loc= (activity as MainActivity).getLastLocation()
-                if(loc.equals("")){
-                    loc = (activity as MainActivity).getLastLocation()
-                }
-                Log.d(Constants.TAG, "location is $loc")
+            }else if(startRecording == false){
+                photoViewModel.addPhotoVoice(PhotoVoice(photo = storageUriStringInFragment,voice = "", albumID = photoViewModel.getCurrentAlbum().id, location = loc))
+                navController.navigate(R.id.nav_photo)
+            }
+            else {
+//                loc= (activity as MainActivity).getLastLocation()
+//                if(loc.equals("")){
+//                    loc = (activity as MainActivity).getLastLocation()
+//                }
+//                loc = (activity as MainActivity).outputText
+//                Log.d(Constants.TAG, "location is $loc")
                 uploadRecording()
                 navController.navigate(R.id.nav_photo)
             }
@@ -363,6 +314,88 @@ class CameraFragment : Fragment() {
             }
         }
     }
+    //--------------------------------------------GPS
 
+    fun CheckPermission():Boolean{
+        //this function will return a boolean
+        //true: if we have permission
+        //false if not
+        if(
+            ActivityCompat.checkSelfPermission(requireContext(),android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+            ActivityCompat.checkSelfPermission(requireContext(),android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        ){
+            return true
+        }
+
+        return false
+    }
+
+    @SuppressLint("MissingPermission")
+    fun getLastLocation() :String{
+        if(CheckPermission()){
+            if(isLocationEnabled()){
+                Log.d("locationCheck" ,"permission granted")
+                fusedLocationProviderClient.lastLocation.addOnCompleteListener {task->
+                    var location: Location? = task.result
+                    if(location == null){
+                        NewLocationData()
+                    }else{
+                        loc = getCityName(location.latitude, location.longitude)
+                    }
+                }
+            }else{
+                Toast.makeText(context,"Please Turn on Your device Location",Toast.LENGTH_SHORT).show()
+            }
+        }else{
+            RequestPermission()
+        }
+
+        return loc
+    }
+
+    @SuppressLint("MissingPermission")
+    fun NewLocationData(){
+        var locationRequest =  LocationRequest()
+        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        locationRequest.interval = 0
+        locationRequest.fastestInterval = 0
+        locationRequest.numUpdates = 1
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
+        fusedLocationProviderClient!!.requestLocationUpdates(
+            locationRequest,locationCallback, Looper.myLooper()
+        )
+    }
+    private val locationCallback = object : LocationCallback(){
+        override fun onLocationResult(locationResult: LocationResult) {
+            var lastLocation: Location = locationResult.lastLocation
+            Log.d("locationCheck","your last last location: "+ lastLocation.longitude.toString())
+        }
+    }
+
+    private fun getCityName(lat: Double,long: Double):String{
+        var cityName:String = ""
+        var geoCoder = Geocoder(requireContext(), Locale.getDefault())
+        var Adress = geoCoder.getFromLocation(lat,long,3)
+        cityName = Adress.get(0).locality +", "+ Adress.get(0).countryName
+        return cityName
+    }
+
+
+    fun RequestPermission(){
+        //this function will allows us to tell the user to requesut the necessary permsiion if they are not garented
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION,android.Manifest.permission.ACCESS_FINE_LOCATION),
+            PERMISSION_ID
+        )
+    }
+    fun isLocationEnabled():Boolean{
+        //this function will return to us the state of the location service
+        //if the gps or the network provider is enabled then it will return true otherwise it will return false
+        var locationManager =  requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
+            LocationManager.NETWORK_PROVIDER)
+    }
 
 }

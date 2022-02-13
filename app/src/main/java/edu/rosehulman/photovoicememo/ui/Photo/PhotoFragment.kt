@@ -1,10 +1,13 @@
 package edu.rosehulman.photovoicememo.ui.Photo
 
+import android.content.pm.PackageManager
 import android.graphics.*
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
 import android.media.MediaPlayer.OnCompletionListener
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -13,10 +16,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -28,11 +36,13 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.button.MaterialButton
 import com.leinardi.android.speeddial.SpeedDialView
+import edu.rosehulman.photovoicememo.BuildConfig
 import edu.rosehulman.photovoicememo.R
 import edu.rosehulman.photovoicememo.databinding.FragmentPhotoBinding
 import edu.rosehulman.photovoicememo.model.Constants
 import edu.rosehulman.photovoicememo.model.PhotoVoice
 import edu.rosehulman.photovoicememo.model.PhotoVoiceViewModel
+import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -44,7 +54,7 @@ class PhotoFragment : Fragment() {
     private var isPlaying = false
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
     private lateinit var playerSheet: ConstraintLayout
-
+    private var latestTmpUri: Uri? = null
     //UI Elements
     private lateinit var playBtn: ImageButton
     private lateinit var playerHeader: TextView
@@ -176,12 +186,14 @@ class PhotoFragment : Fragment() {
             SpeedDialView.OnActionSelectedListener { actionItem ->
                 when (actionItem.id) {
                     R.id.action_local -> {
-
+                        selectImageFromGallery()
                         binding.speedDialFab.close() // To close the Speed Dial with animation
+
                         return@OnActionSelectedListener true // false will close it without animation
                     }
                     R.id.action_camera -> {
-                        findNavController().navigate(R.id.nav_camera)
+                        takeImage()
+
                         return@OnActionSelectedListener false
                     }
                 }
@@ -245,6 +257,86 @@ class PhotoFragment : Fragment() {
 //            playAudio()
 //        }
 //    }
+
+
+
+    private fun getTmpFileUri(): Uri {
+        val storageDir: File = requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
+        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+        val tmpFile = File.createTempFile("JPEG_${timeStamp}_", ".png", storageDir).apply {
+            createNewFile()
+            deleteOnExit()
+        }
+        return FileProvider.getUriForFile(
+            requireContext(),
+            "${BuildConfig.APPLICATION_ID}.provider",
+            tmpFile
+        )
+    }
+
+    private fun checkCameraPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            requireContext(),
+            android.Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    val permissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // Do if the permission is granted
+            val toast = Toast.makeText(context,"permission granted",Toast.LENGTH_SHORT)
+            toast.show()
+        }
+        else {
+            val toast = Toast.makeText(context,"permission request fail",Toast.LENGTH_SHORT)
+            toast.show()
+        }
+    }
+
+    private val takeImageResult =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
+            if (isSuccess) {
+                latestTmpUri?.let { uri ->
+                    Log.d(Constants.TAG,"uri is $uri")
+                    val result = uri.toString()
+                    Log.d(Constants.TAG,"uri to String  is $result")
+                    // Use the Kotlin extension in the fragment-ktx artifact
+
+                    setFragmentResult("requestKey", bundleOf("bundleKey" to result))
+                    findNavController().navigate(R.id.nav_camera)
+                }
+            }
+        }
+
+
+    private fun takeImage() {
+        if(checkCameraPermission()){
+            lifecycleScope.launchWhenStarted {
+                getTmpFileUri().let { uri ->
+                    latestTmpUri = uri
+                    takeImageResult.launch(uri)
+                }
+            }
+        }else{
+            permissionLauncher.launch(android.Manifest.permission.CAMERA)
+        }
+
+    }
+    private fun selectImageFromGallery() = selectImageFromGalleryResult.launch("image/*")
+    private val selectImageFromGalleryResult =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            uri?.let {
+                Log.d(Constants.TAG,"uri is $uri")
+                val result = uri.toString()
+                Log.d(Constants.TAG,"uri to String  is $result")
+                // Use the Kotlin extension in the fragment-ktx artifact
+
+                setFragmentResult("requestKey", bundleOf("bundleKey" to result))
+                findNavController().navigate(R.id.nav_camera)
+            }
+        }
 
     private fun pauseAudio() {
         mediaPlayer!!.pause()
@@ -413,7 +505,7 @@ class PhotoFragment : Fragment() {
                 val sdf = SimpleDateFormat("MM/dd/yyyy", Locale.US)
                 val date = photoVoice.created?.toDate()?: Date()
                 val dateStr: String = sdf.format(date)
-                textView.text = dateStr
+                textView.text = dateStr + "\n"+photoVoice.location
                 imageView.load(photoVoice.photo) {
                     crossfade(true)
                     transformations(CircleCropTransformation())

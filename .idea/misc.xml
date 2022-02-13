@@ -3,11 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1575" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/drawable/ic_baseline_add_circle_24.xml" value="0.271875" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/drawable/ic_baseline_play_arrow_24.xml" value="0.4009259259259259" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/drawable/ic_baseline_play_circle_filled_24.xml" value="0.271875" />
-        <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/drawable/media_header_bg.xml" value="0.13055555555555556" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/drawable/player_bg.xml" value="0.13055555555555556" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/layout-w1240dp/activity_main.xml" value="0.2597054886211513" />
@@ -36,17 +34,16 @@
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/layout/photo_fragment.xml" value="0.2557291666666667" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/layout/player_sheet.xml" value="0.4" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/menu/bottom_navigation.xml" value="0.2557291666666667" />
-        <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/menu/menu_speed_dial.xml" value="0.37222222222222223" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/menu/navigation_drawer.xml" value="0.2557291666666667" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/menu/overflow.xml" value="0.2557291666666667" />
-        <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.1" />
-        <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/Android_FinalProject/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.1575" />
         <entry key="..\:/Users/zoud/Desktop/CSSE483/labs/app/src/main/res/layout/content_main.xml" value="0.12588652482269502" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.37864583333333335" />
+        <entry key="app/src/main/res/layout/album_item_transform.xml" value="0.28442028985507245" />
         <entry key="app/src/main/res/layout/app_bar_main.xml" value="0.37864583333333335" />
         <entry key="app/src/main/res/layout/content_main.xml" value="0.37864583333333335" />
         <entry key="app/src/main/res/layout/fragment_album.xml" value="0.14944275582573455" />
         <entry key="app/src/main/res/layout/fragment_login.xml" value="0.37864583333333335" />
+        <entry key="app/src/main/res/layout/fragment_photo.xml" value="0.28442028985507245" />
         <entry key="app/src/main/res/layout/fragment_photo_detail.xml" value="0.28958333333333336" />
         <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.428125" />
         <entry key="app/src/main/res/layout/input.xml" value="0.14944275582573455" />

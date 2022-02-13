@@ -6,7 +6,7 @@ import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.ServerTimestamp
 
 data class PhotoVoice(
-    var photo: String = "", var voice: String = "",var albumID: String = ""
+    var photo: String = "", var voice: String = "",var albumID: String = "", var location: String = ""
 ) {
     @get:Exclude
     var id = ""

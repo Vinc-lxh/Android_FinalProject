@@ -42,10 +42,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
     private lateinit var authStateListener: FirebaseAuth.AuthStateListener
-    val PERMISSION_ID = 2765
-    lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    lateinit var locationRequest: LocationRequest
-    lateinit var outputText: String
     override fun onStart() {
         super.onStart()
         Firebase.auth.addAuthStateListener(authStateListener)
@@ -59,7 +55,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.appBarMain.toolbar)
@@ -91,90 +86,6 @@ class MainActivity : AppCompatActivity() {
             it.setupWithNavController(navController)
         }
 
-    }
-
-    fun CheckPermission():Boolean{
-        //this function will return a boolean
-        //true: if we have permission
-        //false if not
-        if(
-            ActivityCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-            ActivityCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-        ){
-            return true
-        }
-
-        return false
-    }
-
-    @SuppressLint("MissingPermission")
-    fun getLastLocation() :String{
-        var output:String = ""
-        if(CheckPermission()){
-            if(isLocationEnabled()){
-            Log.d("locationCheck" ,"permission granted")
-                fusedLocationProviderClient.lastLocation.addOnCompleteListener {task->
-                    var location:Location? = task.result
-                    if(location == null){
-                        NewLocationData()
-                    }else{
-                        output= getCityName(location.latitude,location.longitude)
-                        Log.d("locationCheck" ,"Your Location in else: ${location.longitude}")
-                        Log.d(Constants.TAG, "$output")
-                    }
-                }
-            }else{
-                Toast.makeText(this,"Please Turn on Your device Location",Toast.LENGTH_SHORT).show()
-            }
-        }else{
-            RequestPermission()
-        }
-        Log.d("locationCheck" ,"output is : $output")
-        return output
-    }
-
-    @SuppressLint("MissingPermission")
-    fun NewLocationData(){
-        var locationRequest =  LocationRequest()
-        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        locationRequest.interval = 0
-        locationRequest.fastestInterval = 0
-        locationRequest.numUpdates = 1
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-
-        fusedLocationProviderClient!!.requestLocationUpdates(
-            locationRequest,locationCallback, Looper.myLooper()
-        )
-    }
-    private val locationCallback = object : LocationCallback(){
-        override fun onLocationResult(locationResult: LocationResult) {
-            var lastLocation: Location = locationResult.lastLocation
-            Log.d("locationCheck","your last last location: "+ lastLocation.longitude.toString())
-        }
-    }
-
-    private fun getCityName(lat: Double,long: Double):String{
-        var cityName:String = ""
-        var geoCoder = Geocoder(this, Locale.getDefault())
-        var Adress = geoCoder.getFromLocation(lat,long,3)
-        cityName = Adress.get(0).locality +", "+ Adress.get(0).countryName
-        return cityName
-    }
-
-
-    fun RequestPermission(){
-        //this function will allows us to tell the user to requesut the necessary permsiion if they are not garented
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION,android.Manifest.permission.ACCESS_FINE_LOCATION),
-            PERMISSION_ID
-        )
-    }
-    fun isLocationEnabled():Boolean{
-        //this function will return to us the state of the location service
-        //if the gps or the network provider is enabled then it will return true otherwise it will return false
-        var locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
 

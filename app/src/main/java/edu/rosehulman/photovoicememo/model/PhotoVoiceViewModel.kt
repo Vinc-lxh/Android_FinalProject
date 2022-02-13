@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.*
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.getField
 import com.google.firebase.ktx.Firebase
 import edu.rosehulman.photovoicememo.User
 import edu.rosehulman.photovoicememo.model.Album.Companion.defaultAlbumPage
@@ -17,7 +18,7 @@ class PhotoVoiceViewModel: ViewModel() {
     var albumPos = 0
     lateinit var ref: CollectionReference
     lateinit var albumRef: CollectionReference
-
+    var removed = false
     val subscriptions = HashMap<String, ListenerRegistration>()
     fun addListener(fragmentName: String, observer: () -> Unit) {
         val uid = Firebase.auth.currentUser!!.uid
@@ -40,7 +41,12 @@ class PhotoVoiceViewModel: ViewModel() {
                 if(photosvoice.size>0&&getCurrentAlbum().url.equals(defaultAlbumPage)){
                     updateCurrentAlbumPage(photosvoice[0].photo)
                 }else if(photosvoice.size==0){
-                    updateCurrentAlbumPage(Album.defaultAlbumPage)
+                    if(!removed){
+                        updateCurrentAlbumPage(Album.defaultAlbumPage)
+                    }else{
+                        removed =!removed
+                    }
+
                 }
                 observer()
             }
@@ -86,6 +92,7 @@ class PhotoVoiceViewModel: ViewModel() {
     fun removeCurrentPhoto(){
         ref.document(getCurrentPhoto().id).delete()
         currentPos = 0
+        removed = false
     }
     fun updatePos(pos: Int){
         currentPos = pos
@@ -109,8 +116,14 @@ class PhotoVoiceViewModel: ViewModel() {
         albumRef.document(getCurrentAlbum().id).set(albnum[albumPos])
     }
     fun removeCurrentAlbum(){
+        ref.whereEqualTo("albumID",getCurrentAlbum().id).get().addOnSuccessListener {
+            it.forEach {
+                it.reference.delete()
+            }
+        }
         albumRef.document(getCurrentAlbum().id).delete()
         albumPos = 0
+        removed=true
     }
     fun updateAlbumPos(pos: Int){
         albumPos = pos
