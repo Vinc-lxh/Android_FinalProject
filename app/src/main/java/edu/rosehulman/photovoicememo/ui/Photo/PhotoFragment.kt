@@ -1,5 +1,6 @@
 package edu.rosehulman.photovoicememo.ui.Photo
 
+import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
 import android.media.MediaPlayer.OnCompletionListener
 import android.os.Bundle
@@ -9,17 +10,15 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.SeekBar
+import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
-import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.CircleCropTransformation
@@ -75,6 +74,26 @@ class PhotoFragment : Fragment() {
                 DividerItemDecoration.VERTICAL
             )
         )
+
+        val touchHelperCallback: ItemTouchHelper.SimpleCallback =
+            object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ): Boolean {
+                    return false
+                }
+
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    Log.d(Constants.TAG,"swipeed")
+                    adapter.deletePhoto(viewHolder.absoluteAdapterPosition)
+                }
+
+            }
+        val itemTouchHelper = ItemTouchHelper(touchHelperCallback)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
+
         initializeButtons()
 
         return binding.root
@@ -286,6 +305,12 @@ class PhotoFragment : Fragment() {
 
         override fun getItemCount() = model.size()
         fun getCurrentVoice()= model.getCurrentPhoto().voice
+        fun deletePhoto(position: Int) {
+            model.updatePos(position)
+            model.removeCurrentPhoto()
+            val toast = Toast.makeText(fragment.context,"delete photoVoice successfully", Toast.LENGTH_SHORT)
+            toast.show()
+        }
 
 
         inner class PhotoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -320,7 +345,8 @@ class PhotoFragment : Fragment() {
 
             fun bind(photoVoice: PhotoVoice) {
                 val sdf = SimpleDateFormat("MM/dd/yyyy", Locale.US)
-                val dateStr: String = sdf.format(photoVoice.created?.toDate()?.time)
+                val date = photoVoice.created?.toDate()?: Date()
+                val dateStr: String = sdf.format(date)
                 textView.text = dateStr
                 imageView.load(photoVoice.photo) {
                     crossfade(true)

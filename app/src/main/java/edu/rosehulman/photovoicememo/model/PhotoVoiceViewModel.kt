@@ -39,6 +39,8 @@ class PhotoVoiceViewModel: ViewModel() {
                 }
                 if(photosvoice.size>0&&getCurrentAlbum().url.equals(defaultAlbumPage)){
                     updateCurrentAlbumPage(photosvoice[0].photo)
+                }else{
+                    updateCurrentAlbumPage(Album.defaultAlbumPage)
                 }
                 observer()
             }

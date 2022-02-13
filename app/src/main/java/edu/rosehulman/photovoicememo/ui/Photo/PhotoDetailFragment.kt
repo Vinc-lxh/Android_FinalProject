@@ -179,7 +179,8 @@ class PhotoDetailFragment : Fragment() {
 
     fun updateView() {
         val sdf = SimpleDateFormat("MM/dd/yyyy", Locale.US)
-        val dateStr: String = sdf.format(photoVoice.created?.toDate()?.time)
+        val date = photoVoice.created?.toDate()?: Date()
+        val dateStr: String = sdf.format(date)
         binding.detailCaptionDetail.setText(dateStr)
         binding.photoDetailView.load(photoVoice.photo) {
                 crossfade(true)
