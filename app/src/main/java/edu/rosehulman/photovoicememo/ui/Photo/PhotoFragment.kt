@@ -33,8 +33,8 @@ import edu.rosehulman.photovoicememo.model.Constants
 import edu.rosehulman.photovoicememo.model.PhotoVoice
 import edu.rosehulman.photovoicememo.model.PhotoVoiceViewModel
 import java.io.IOException
-
-
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class PhotoFragment : Fragment() {
@@ -319,7 +319,9 @@ class PhotoFragment : Fragment() {
             }
 
             fun bind(photoVoice: PhotoVoice) {
-                textView.text = photoVoice.created.toString()
+                val sdf = SimpleDateFormat("MM/dd/yyyy", Locale.US)
+                val dateStr: String = sdf.format(photoVoice.created?.toDate()?.time)
+                textView.text = dateStr
                 imageView.load(photoVoice.photo) {
                     crossfade(true)
                     transformations(CircleCropTransformation())

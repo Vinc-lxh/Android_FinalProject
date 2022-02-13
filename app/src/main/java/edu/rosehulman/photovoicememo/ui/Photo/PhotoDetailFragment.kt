@@ -5,24 +5,27 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.SeekBar
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import coil.load
-import coil.transform.CircleCropTransformation
 import coil.transform.RoundedCornersTransformation
 import edu.rosehulman.photovoicememo.R
 import edu.rosehulman.photovoicememo.databinding.FragmentPhotoDetailBinding
 import edu.rosehulman.photovoicememo.model.Constants
 import edu.rosehulman.photovoicememo.model.PhotoVoice
 import edu.rosehulman.photovoicememo.model.PhotoVoiceViewModel
+
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.time.Duration.Companion.days
+
 
 class PhotoDetailFragment : Fragment() {
 
@@ -50,7 +53,7 @@ class PhotoDetailFragment : Fragment() {
         binding = FragmentPhotoDetailBinding.inflate(inflater,container,false)
         model = ViewModelProvider(requireActivity()).get(PhotoVoiceViewModel::class.java)
         photoVoice = model.getCurrentPhoto()
-                updateView()
+        updateView()
 
         return binding.root
     }
@@ -141,7 +144,9 @@ class PhotoDetailFragment : Fragment() {
                 null
             )
         )
-        playerFilename.text = model.getCurrentPhoto().created.toString()
+        val sdf = SimpleDateFormat("MM/dd/yyyy", Locale.US)
+        val dateStr: String = sdf.format(photoVoice.created?.toDate()?.time)
+        playerFilename.text = dateStr
 
         //Play the audio
         isPlaying = true
@@ -173,7 +178,9 @@ class PhotoDetailFragment : Fragment() {
 
 
     fun updateView() {
-        binding.detailCaptionDetail.text = photoVoice.created.toString()
+        val sdf = SimpleDateFormat("MM/dd/yyyy", Locale.US)
+        val dateStr: String = sdf.format(photoVoice.created?.toDate()?.time)
+        binding.detailCaptionDetail.setText(dateStr)
         binding.photoDetailView.load(photoVoice.photo) {
                 crossfade(true)
                 transformations(RoundedCornersTransformation())
