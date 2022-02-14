@@ -116,6 +116,9 @@ class PhotoVoiceViewModel: ViewModel() {
         albumRef.document(getCurrentAlbum().id).set(albnum[albumPos])
     }
     fun removeCurrentAlbum(){
+        val uid = Firebase.auth.currentUser!!.uid
+        ref = Firebase.firestore.collection(User.COLLECTION_PATH).document(uid)
+            .collection(PhotoVoice.COLLECTION_PATH)
         ref.whereEqualTo("albumID",getCurrentAlbum().id).get().addOnSuccessListener {
             it.forEach {
                 it.reference.delete()
