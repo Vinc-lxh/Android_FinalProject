@@ -146,7 +146,7 @@ class PhotoDetailFragment : Fragment() {
         )
         val sdf = SimpleDateFormat("MM/dd/yyyy", Locale.US)
         val dateStr: String = sdf.format(photoVoice.created?.toDate()?.time)
-        playerFilename.text = dateStr
+        playerFilename.text = dateStr+"\n"+photoVoice.location
 
         //Play the audio
         isPlaying = true

@@ -133,7 +133,7 @@ class AlbumFragment : Fragment() {
 
         val imageView: ImageView =itemView.findViewById(R.id.thumbnail_view)
         val textView: TextView = itemView.findViewById(R.id.caption_detail)
-        val deleteAlbumButton: ImageView = itemView.findViewById(R.id.deleteAlbum)
+
         init {
             itemView.setOnClickListener{
                 model.updateAlbumPos(absoluteAdapterPosition)
@@ -148,7 +148,7 @@ class AlbumFragment : Fragment() {
                     }
                 )
             }
-            deleteAlbumButton.setOnClickListener {
+            itemView.setOnLongClickListener {
                 val builder = androidx.appcompat.app.AlertDialog.Builder(itemView.context)
                 builder.setTitle("Delete Album")
                 builder.setMessage("Do you want to delete the album ${model.getCurrentAlbum().name} and all corresponding photo voice?")
@@ -159,9 +159,11 @@ class AlbumFragment : Fragment() {
                 }
 
                 builder.setNegativeButton("No") { dia, _ ->
-                   dia.dismiss()
+                    dia.dismiss()
                 }
                 builder.create().show()
+              true
+
             }
 
         }

@@ -27,6 +27,7 @@
 <!--        android:backgroundTint="@color/ins_pink"-->
 <!--        android:src="@android:drawable/ic_input_add"-->
 <!--        tools:ignore="ContentDescription" />-->
+
     <com.leinardi.android.speeddial.SpeedDialView
         android:id="@+id/speedDialFab"
         android:layout_width="wrap_content"
@@ -36,6 +37,7 @@
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="4dp"
         android:layout_marginBottom="70dp"
+
         android:backgroundTint="@color/ins_pink"
         app:sdMainFabClosedSrc="@android:drawable/ic_input_add"/>
 

@@ -15,14 +15,6 @@
             android:contentDescription="Image"
             android:scaleType="centerInside" />
 
-        <ImageView
-            android:id="@+id/deleteAlbum"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_below="@+id/thumbnail_view"
-            android:layout_alignLeft="@+id/thumbnail_view"
-            android:src="@drawable/ic_baseline_remove_circle_24" />
-
         <TextView
             android:id="@+id/caption_detail"
             android:layout_width="wrap_content"
