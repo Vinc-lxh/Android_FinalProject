@@ -50,11 +50,5 @@
         android:name="edu.rosehulman.photovoicememo.ui.profile.ProfileFragment"
         android:label="@string/menu_profile"
         tools:layout="@layout/fragment_profile" />
-    
 
-    <fragment
-        android:id="@+id/nav_settings"
-        android:name="edu.rosehulman.photovoicememo.ui.settings.SettingsFragment"
-        android:label="@string/menu_tips"
-        tools:layout="@layout/fragment_settings" />
 </navigation>

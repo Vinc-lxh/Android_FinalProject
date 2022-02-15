@@ -19,6 +19,7 @@
             android:id="@+id/caption_detail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/aclonica"
             android:layout_below="@+id/thumbnail_view"
             android:layout_centerHorizontal="true"
             android:text="@string/date_edit_text_hint"

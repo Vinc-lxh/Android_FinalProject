@@ -15,8 +15,9 @@
         android:layout_marginTop="60dp"
         android:text="Useful Tips"
         android:textColor="#fff"
+        android:fontFamily="@font/aclonica"
         android:textSize="42sp"
-        android:textStyle="italic" />
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tips"
@@ -24,6 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tips_title"
         android:layout_marginTop="149dp"
+        android:fontFamily="@font/aclonica"
         android:layout_centerInParent="true"
         android:text="1. Long press album to delete \n\n2. Click album's name to edit \n\n3. Left swipe the PhotoVoice \n     to delete"
         android:textColor="#fff"

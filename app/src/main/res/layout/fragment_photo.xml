@@ -15,18 +15,6 @@
     app:layoutManager="LinearLayoutManager"
     tools:context=".ui.Photo.PhotoFragment" />
 <include layout="@layout/player_sheet" />
-<!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
-<!--        android:id="@+id/add_fab"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_alignParentEnd="true"-->
-<!--        android:layout_alignParentBottom="true"-->
-<!--        android:layout_gravity="bottom|end"-->
-<!--        android:layout_marginEnd="4dp"-->
-<!--        android:layout_marginBottom="70dp"-->
-<!--        android:backgroundTint="@color/ins_pink"-->
-<!--        android:src="@android:drawable/ic_input_add"-->
-<!--        tools:ignore="ContentDescription" />-->
 
     <com.leinardi.android.speeddial.SpeedDialView
         android:id="@+id/speedDialFab"
@@ -37,7 +25,7 @@
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="4dp"
         android:layout_marginBottom="70dp"
-
+        android:fontFamily="@font/aclonica"
         android:backgroundTint="@color/ins_pink"
         app:sdMainFabClosedSrc="@android:drawable/ic_input_add"/>
 

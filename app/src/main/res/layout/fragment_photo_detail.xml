@@ -34,8 +34,9 @@
         android:layout_height="70sp"
         android:layout_above="@id/player_sheet"
         android:layout_centerHorizontal="true"
-        android:fontFamily="@font/titillium"
+        android:fontFamily="@font/aclonica"
         android:text="@string/date_edit_text_hint"
+
         android:textSize="24sp" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -60,30 +61,6 @@
             app:layout_constraintTop_toBottomOf="@+id/detail_caption_detail"
             app:srcCompat="@drawable/ic_baseline_play_arrow_24"
             tools:ignore="NotSibling" />
-
-        <ImageButton
-            android:id="@+id/imageView3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
-            android:padding="16dp"
-            app:layout_constraintBottom_toBottomOf="@+id/detail_player_play_btn"
-            app:layout_constraintEnd_toStartOf="@+id/detail_player_play_btn"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/detail_player_play_btn"
-            app:srcCompat="@drawable/ic_baseline_fast_rewind_24" />
-
-        <ImageButton
-            android:id="@+id/imageView4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
-            android:padding="16dp"
-            app:layout_constraintBottom_toBottomOf="@+id/detail_player_play_btn"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/detail_player_play_btn"
-            app:layout_constraintTop_toTopOf="@+id/detail_player_play_btn"
-            app:srcCompat="@drawable/ic_baseline_fast_forward_24" />
 
         <SeekBar
             android:id="@+id/detail_player_seekbar"

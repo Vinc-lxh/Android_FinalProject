@@ -18,6 +18,7 @@ import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.app.ActivityCompat.invalidateOptionsMenu
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.os.bundleOf
@@ -74,6 +75,7 @@ class PhotoFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         model = ViewModelProvider(this).get(PhotoVoiceViewModel::class.java)
         binding = FragmentPhotoBinding.inflate(inflater, container, false)
         recyclerView = binding.recyclerviewPhoto
@@ -87,9 +89,9 @@ class PhotoFragment : Fragment() {
                 DividerItemDecoration.VERTICAL
             )
         )
+
         settupRecycleViewSwipeForDelete()
         initializeButtons()
-
         return binding.root
     }
 

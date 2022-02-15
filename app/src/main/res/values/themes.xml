@@ -15,6 +15,7 @@
     </style>
 
     <style name="Theme.PhotoVoiceMemo.NoActionBar">
+        <item name="fontFamily">@font/aclonica</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
