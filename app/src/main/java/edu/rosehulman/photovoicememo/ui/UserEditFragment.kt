@@ -1,5 +1,6 @@
 package edu.rosehulman.photovoicememo.ui
 
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -9,6 +10,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -33,7 +36,12 @@ class UserEditFragment : Fragment() {
 
     private var storageUriStringInFragment: String = ""
 
-
+    private fun checkRecordPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            requireContext(),
+            android.Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
+    }
     private val takeImageResult =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
             if (isSuccess) {
@@ -77,6 +85,13 @@ class UserEditFragment : Fragment() {
             findNavController().navigate(R.id.nav_profile)
         }
         binding.userEditUploadPhotoButton.setOnClickListener {
+            if(!checkRecordPermission()){
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    arrayOf(android.Manifest.permission.CAMERA,android.Manifest.permission.READ_EXTERNAL_STORAGE),
+                    2765
+                )
+            }
             showPictureDialog()
         }
 
