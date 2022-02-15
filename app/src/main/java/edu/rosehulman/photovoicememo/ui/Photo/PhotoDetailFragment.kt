@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
@@ -13,6 +14,8 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.navOptions
 import coil.load
 import coil.transform.RoundedCornersTransformation
 import edu.rosehulman.photovoicememo.R
@@ -54,7 +57,7 @@ class PhotoDetailFragment : Fragment() {
         model = ViewModelProvider(requireActivity()).get(PhotoVoiceViewModel::class.java)
         photoVoice = model.getCurrentPhoto()
         updateView()
-
+        setHasOptionsMenu(true)
         return binding.root
     }
 
@@ -62,7 +65,22 @@ class PhotoDetailFragment : Fragment() {
         super.onStart()
         playAudio()
     }
-
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId){
+            R.id.action_tips -> {
+                findNavController().navigate(R.id.nav_tips,
+                    null,
+                    navOptions{
+                        anim{
+                            enter = android.R.anim.slide_in_left
+                            exit = android.R.anim.slide_out_right
+                        }
+                    }
+                )
+                return true
+            }else -> super.onOptionsItemSelected(item)
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

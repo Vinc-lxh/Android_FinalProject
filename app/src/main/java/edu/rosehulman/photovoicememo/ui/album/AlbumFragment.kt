@@ -222,8 +222,8 @@ class AlbumFragment : Fragment() {
 
         }
         fun bind(album: Album){
-            if(album.name.length>5){
-                textView.text = album.name.substring(0,5)+"..."
+            if(album.name.length>10){
+                textView.text = album.name.substring(0,10)+"..."
             }
             else{
                 textView.text = album.name

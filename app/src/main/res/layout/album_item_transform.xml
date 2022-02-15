@@ -13,7 +13,7 @@
             android:layout_width="190dp"
             android:layout_height="190dp"
             android:contentDescription="Image"
-            android:scaleType="centerInside" />
+            android:scaleType="fitXY" />
 
         <TextView
             android:id="@+id/caption_detail"

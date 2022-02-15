@@ -27,7 +27,7 @@
         android:layout_marginTop="149dp"
         android:fontFamily="@font/underdog"
         android:text="1. Long press album to delete \n\n2. Click album's name to edit \n\n3. Left swipe the PhotoVoice \n
-    to delete\n4. Long press PhotoVoice to edit"
+    to delete\n\n4. Right swipe the PhotoVoice\n     to edit"
         android:textColor="#fff"
         android:textSize="24sp"
         android:textStyle="bold" />
