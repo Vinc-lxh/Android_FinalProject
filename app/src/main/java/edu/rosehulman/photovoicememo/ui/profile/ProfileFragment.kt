@@ -35,7 +35,7 @@ class ProfileFragment : Fragment() {
                 ViewModelProvider(this).get(UserViewModel::class.java)
     
             binding = FragmentProfileBinding.inflate(inflater, container, false)
-            binding.centerImage.load("https://scontent-iad3-1.xx.fbcdn.net/v/t1.6435-9/38223814_102956127310567_7245926139808448512_n.jpg?_nc_cat=104&ccb=1-5&_nc_sid=09cbfe&_nc_ohc=BnQY9BXARkEAX_pjpj9&_nc_ht=scontent-iad3-1.xx&oh=00_AT-fqA8DsIiauvBpho4TmCHLbP5BonUH4y2BduXxg2Cphg&oe=62010BBD") {
+
             val ref = Firebase.firestore.collection("photoVoice")
             ref.addSnapshotListener { snapshot: QuerySnapshot?, error: FirebaseFirestoreException? ->
                 error?.let {
@@ -55,9 +55,6 @@ class ProfileFragment : Fragment() {
                     Firebase.auth.signOut()
 
                 }
-            crossfade(true)
-            transformations(CircleCropTransformation())
-        }
             updateView()
             return binding.root
         }

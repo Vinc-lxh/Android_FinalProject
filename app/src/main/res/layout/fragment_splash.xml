@@ -4,10 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.SplashFragment">
+    tools:context=".ui.SplashFragment"
+    android:background="#EC407A">
 
     <TextView
-        android:id="@+id/TopTextView"
+        android:id="@+id/topTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Photo"
@@ -18,6 +19,32 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginTop="250dp"
+        />
+    <TextView
+        android:id="@+id/middleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Voice"
+        android:textSize="42sp"
+        android:textColor="#fff"
+        android:textStyle="italic"
+        app:layout_constraintTop_toBottomOf="@id/topTextView"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="5dp"
+        />
+    <TextView
+        android:id="@+id/bottomTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Memo"
+        android:textSize="42sp"
+        android:textColor="#fff"
+        android:textStyle="italic"
+        app:layout_constraintTop_toBottomOf="@id/middleTextView"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="5dp"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

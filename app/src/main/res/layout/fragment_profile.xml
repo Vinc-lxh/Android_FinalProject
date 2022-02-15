@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_above="@id/center_image"
         android:layout_centerHorizontal="true"
-        android:text="Deng Zou"
+        android:text=""
         android:textSize="72sp" />
 
     <ImageView
@@ -54,7 +54,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/center_image"
         android:layout_centerHorizontal="true"
-        android:text="22 Years Old"
+        android:text=""
         android:textSize="26sp" />
 
     <TextView
@@ -63,7 +63,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/user_age"
         android:layout_centerHorizontal="true"
-        android:text="zoud@rose-hulman.edu"
+        android:text=""
         android:textSize="26sp" />
 
     <RelativeLayout
