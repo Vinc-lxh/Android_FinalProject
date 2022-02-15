@@ -149,6 +149,34 @@ class AlbumFragment : Fragment() {
         fun addAlbum(album: Album) {
             model.addAlbum(album)
         }
+
+        fun createTextDialogForName(msg:String, context: Context,observer: (String) -> Unit) {
+            val textInputLayout = TextInputLayout(context)
+            textInputLayout.setPadding(
+                fragment.resources.getDimensionPixelOffset(R.dimen.dp_19),
+                0,
+                fragment.resources.getDimensionPixelOffset(R.dimen.dp_19),
+                0
+            )
+            val input = EditText(context)
+            textInputLayout.addView(input)
+
+            val alert = AlertDialog.Builder(context)
+                .setTitle("Rename your album")
+                .setView(textInputLayout)
+                .setPositiveButton("Submit") { dialog, _ ->
+                    val txt = input.text.toString()
+                    Log.d(Constants.TAG,"txt is "+txt)
+                    observer(txt)
+                }
+                .setNegativeButton("Cancel") { dialog, _ ->
+                    dialog.cancel()
+                }.create()
+
+            alert.show()
+        }
+
+
     inner class AlbumViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         val imageView: ImageView =itemView.findViewById(R.id.thumbnail_view)
@@ -184,6 +212,12 @@ class AlbumFragment : Fragment() {
                 builder.create().show()
               true
 
+            }
+            textView.setOnClickListener {
+                createTextDialogForName(model.getCurrentAlbum().name,itemView.context){
+                    model.getCurrentAlbum().name = it
+                    model.updateCurrentAlbum(model.getCurrentAlbum())
+                }
             }
 
         }

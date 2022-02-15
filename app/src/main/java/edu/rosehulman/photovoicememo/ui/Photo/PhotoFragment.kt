@@ -27,6 +27,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -37,8 +38,8 @@ import coil.transform.CircleCropTransformation
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.button.MaterialButton
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import com.leinardi.android.speeddial.SpeedDialView
 import edu.rosehulman.photovoicememo.BuildConfig
 import edu.rosehulman.photovoicememo.R
@@ -50,6 +51,7 @@ import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.random.Random
 
 
 class PhotoFragment : Fragment() {
@@ -63,7 +65,7 @@ class PhotoFragment : Fragment() {
     private lateinit var playBtn: ImageButton
     private lateinit var playerHeader: TextView
     private lateinit var playerFilename: TextView
-
+    private var storageUriStringInFragment: String = ""
     private lateinit var playerSeekbar: SeekBar
     private lateinit var seekbarHandler: Handler
     private lateinit var updateSeekbar: Runnable
@@ -72,7 +74,9 @@ class PhotoFragment : Fragment() {
     private lateinit var binding: FragmentPhotoBinding
     private lateinit var adapter: PhotoAdapter
     private lateinit var recyclerView:RecyclerView
-
+    private val storageImagesRef = Firebase.storage
+        .reference
+        .child("images")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -94,7 +98,6 @@ class PhotoFragment : Fragment() {
         )
 
         setActivityTitle(adapter.getCurrentAlbum().name)
-
 
         settupRecycleViewSwipeForDelete()
         initializeButtons()
@@ -134,7 +137,7 @@ class PhotoFragment : Fragment() {
                     dY: Float,
                     actionState: Int,
                     isCurrentlyActive: Boolean
-                ) {
+                ) {storageUriStringInFragment
 
                     val itemView = viewHolder.itemView
                     val itemHeight = itemView.bottom - itemView.top
@@ -269,6 +272,40 @@ class PhotoFragment : Fragment() {
 //        }
 //    }
 
+private fun addPhotoFromUri(uri: Uri?,observer: () -> Unit) {
+    if (uri == null) {
+        Log.e(edu.rosehulman.photovoicememo.Constants.TAG, "Uri is null. Not saving to storage")
+        return
+    }
+// https://stackoverflow.com/a/5657557
+    val stream = requireActivity().contentResolver.openInputStream(uri)
+    if (stream == null) {
+        Log.e(edu.rosehulman.photovoicememo.Constants.TAG, "Stream is null. Not saving to storage")
+        return
+    }
+
+    // TODO: Add to storage
+    val imageId = Math.abs(Random.nextLong()).toString()
+
+    storageImagesRef.child(imageId).putStream(stream)
+        .continueWithTask { task ->
+            if (!task.isSuccessful) {
+                task.exception?.let {
+                    throw it
+                }
+            }
+            storageImagesRef.child(imageId).downloadUrl
+        }.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                storageUriStringInFragment = task.result.toString()
+                Log.d(edu.rosehulman.photovoicememo.Constants.TAG, "Got download uri2: $storageUriStringInFragment")
+                observer()
+            } else {
+                // Handle failures
+                // ...
+            }
+        }
+}
 
 
     private fun getTmpFileUri(): Uri {
@@ -308,15 +345,19 @@ class PhotoFragment : Fragment() {
 
     private val takeImageResult =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
-            if (isSuccess) {
+            if (isSuccess) {                    setFragmentResult("requestKey", bundleOf("isedit" to false))
                 latestTmpUri?.let { uri ->
-                    Log.d(Constants.TAG,"uri is $uri")
-                    val result = uri.toString()
-                    Log.d(Constants.TAG,"uri to String  is $result")
-                    // Use the Kotlin extension in the fragment-ktx artifact
-
-                    setFragmentResult("requestKey", bundleOf("bundleKey" to result))
-                    findNavController().navigate(R.id.nav_camera)
+                    addPhotoFromUri(uri){
+                        setFragmentResult("requestKey", bundleOf("bundleKey" to storageUriStringInFragment,"isedit" to false))
+                        Log.d(Constants.TAG,"finished and navigate")
+                        findNavController().navigate(R.id.nav_camera)
+                    }
+//                    Log.d(Constants.TAG,"uri is $uri")
+//                    val result = uri.toString()
+//                    Log.d(Constants.TAG,"uri to String  is $result")
+//                    // Use the Kotlin extension in the fragment-ktx artifact
+//                    setFragmentResult("requestKey", bundleOf("bundleKey" to result))
+//                    findNavController().navigate(R.id.nav_camera)
                 }
             }
         }
@@ -339,13 +380,19 @@ class PhotoFragment : Fragment() {
     private val selectImageFromGalleryResult =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             uri?.let {
-                Log.d(Constants.TAG,"uri is $uri")
-                val result = uri.toString()
-                Log.d(Constants.TAG,"uri to String  is $result")
-                // Use the Kotlin extension in the fragment-ktx artifact
+//                Log.d(Constants.TAG,"uri is $uri")
+//                val result = uri.toString()
+//                Log.d(Constants.TAG,"uri to String  is $result")
+//                // Use the Kotlin extension in the fragment-ktx artifact
+//
+//                setFragmentResult("requestKey", bundleOf("bundleKey" to result))
+//                findNavController().navigate(R.id.nav_camera)
 
-                setFragmentResult("requestKey", bundleOf("bundleKey" to result))
-                findNavController().navigate(R.id.nav_camera)
+                addPhotoFromUri(uri){
+                    setFragmentResult("requestKey", bundleOf("bundleKey" to storageUriStringInFragment,"isedit" to false))
+                    Log.d(Constants.TAG,"finished and navigate")
+                    findNavController().navigate(R.id.nav_camera)
+                }
             }
         }
 
@@ -501,6 +548,13 @@ class PhotoFragment : Fragment() {
                             }
                         }
                     )
+                }
+                itemView.setOnLongClickListener{
+                    model.updatePos(absoluteAdapterPosition)
+                    fragment.setFragmentResult("requestKey", bundleOf("bundleKey" to model.getCurrentPhoto().photo,"isedit" to true))
+                    Log.d(Constants.TAG,"finished and navigate")
+                    fragment.findNavController().navigate(R.id.nav_camera)
+                    true
                 }
                 playButton.setOnClickListener {
                     model.updatePos(absoluteAdapterPosition)

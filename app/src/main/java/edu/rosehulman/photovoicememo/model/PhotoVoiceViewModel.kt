@@ -38,15 +38,11 @@ class PhotoVoiceViewModel: ViewModel() {
                 snapshot?.documents?.forEach {
                     photosvoice.add(PhotoVoice.from(it))
                 }
-                if(photosvoice.size>0&&getCurrentAlbum().url.equals(defaultAlbumPage)){
-                    updateCurrentAlbumPage(photosvoice[0].photo)
-                }else if(photosvoice.size==0){
-                    if(!removed){
+                if(photosvoice.size==0){
                         updateCurrentAlbumPage(Album.defaultAlbumPage)
-                    }else{
-                        removed =!removed
-                    }
-
+                }
+                else if(photosvoice.size>0&&getCurrentAlbum().url.equals(defaultAlbumPage)){
+                    updateCurrentAlbumPage(photosvoice[0].photo)
                 }
                 observer()
             }
@@ -84,9 +80,8 @@ class PhotoVoiceViewModel: ViewModel() {
         val p = photoVoice ?: PhotoVoice(useGivenOrRandomCaption(""),useGivenOrRandom(""))
         ref.add(p)
     }
-    fun updateCurrentPhoto(cap:String, url: String){
-        photosvoice[currentPos].photo = useGivenOrRandomCaption(cap)
-        photosvoice[currentPos].voice = useGivenOrRandom(url)
+    fun updateCurrentPhoto( voice: String){
+        photosvoice[currentPos].voice = voice
         ref.document(getCurrentPhoto().id).set(getCurrentPhoto())
     }
     fun removeCurrentPhoto(){

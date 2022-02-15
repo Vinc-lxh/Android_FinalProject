@@ -32,6 +32,7 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import coil.load
 import com.google.android.gms.location.*
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -63,6 +64,7 @@ class CameraFragment : Fragment() {
     private lateinit var recordBtn: ImageButton
     private lateinit var timer: Chronometer
     lateinit var imageView:ImageView
+    var isedit:Boolean = false
     private var loc: String = ""
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     val PERMISSION_ID = 2765
@@ -88,11 +90,13 @@ class CameraFragment : Fragment() {
     ): View {
         setFragmentResultListener("requestKey") { requestKey, bundle ->
             val result = bundle.getString("bundleKey")
-            //Log.d(edu.rosehulman.photovoicememo.model.Constants.TAG,"uri getted is $result")
-            //Log.d(edu.rosehulman.photovoicememo.model.Constants.TAG,"uri getted to Uri is ${result?.toUri()}")
+            isedit = bundle.getBoolean("isedit")
+            Log.d(Constants.TAG,"result is $isedit")
             if (result != null) {
-                binding.cameraImageView.setImageURI(result.toUri())
-                addPhotoFromUri(result.toUri())
+                binding.cameraImageView.load(result)
+                   // .setImageURI(result.toUri())
+                storageUriStringInFragment = result
+                //addPhotoFromUri(result.toUri())
             }
 
         }
@@ -202,7 +206,11 @@ class CameraFragment : Fragment() {
                 if (task.isSuccessful) {
                     voiceUriStringInFragment = task.result.toString()
                     Log.d(Constants.TAG, "Got download uri: $voiceUriStringInFragment")
-                    photoViewModel.addPhotoVoice(PhotoVoice(photo = storageUriStringInFragment,voice = voiceUriStringInFragment, albumID = photoViewModel.getCurrentAlbum().id, location = loc ))
+                    if(isedit){
+                        photoViewModel.updateCurrentPhoto(voiceUriStringInFragment)
+                    }else{
+                        photoViewModel.addPhotoVoice(PhotoVoice(photo = storageUriStringInFragment,voice = voiceUriStringInFragment, albumID = photoViewModel.getCurrentAlbum().id, location = loc ))
+                    }
                 } else {
                     Log.d(Constants.TAG,"failureHere")
                 }
@@ -263,7 +271,6 @@ class CameraFragment : Fragment() {
                 ) { dialog, which ->
                     stopRecording()
                     uploadRecording()
-//                    photoViewModel.addPhotoVoice(PhotoVoice(photo = storageUriStringInFragment,voice = voiceUriStringInFragment, albumID = photoViewModel.getCurrentAlbum().id))
                     navController.navigate(R.id.nav_photo)
                     isRecording = false
                 }
@@ -273,7 +280,11 @@ class CameraFragment : Fragment() {
                 alertDialog.create().show()
 
             }else if(startRecording == false){
-                photoViewModel.addPhotoVoice(PhotoVoice(photo = storageUriStringInFragment,voice = "", albumID = photoViewModel.getCurrentAlbum().id, location = loc))
+                if(isedit){
+
+                }else{
+                    photoViewModel.addPhotoVoice(PhotoVoice(photo = storageUriStringInFragment,voice = "", albumID = photoViewModel.getCurrentAlbum().id, location = loc))
+                    }
                 navController.navigate(R.id.nav_photo)
             }
             else {
