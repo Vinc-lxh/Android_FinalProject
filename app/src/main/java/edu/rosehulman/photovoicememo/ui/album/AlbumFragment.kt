@@ -7,6 +7,7 @@ import android.media.Image
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -58,6 +59,9 @@ class AlbumFragment : Fragment() {
         recyclerView?.adapter = adapter
         recyclerView?.setHasFixedSize(true)
         recyclerView?.layoutManager =  GridLayoutManager(requireContext(),2)
+
+        setHasOptionsMenu(true)
+
         binding.addAlbum?.setOnClickListener {
             createTextDialog(requireContext()){
                 adapter.addAlbum(Album(name = it, url = defaultAlbumPage))
@@ -75,6 +79,22 @@ class AlbumFragment : Fragment() {
         const val fragmentName = "AlbumFragment"
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId){
+            R.id.action_tips -> {
+                findNavController().navigate(R.id.nav_tips,
+                    null,
+                    navOptions{
+                        anim{
+                            enter = android.R.anim.slide_in_left
+                            exit = android.R.anim.slide_out_right
+                        }
+                    }
+                )
+                return true
+            }else -> super.onOptionsItemSelected(item)
+        }
+    }
 
      fun createTextDialog(context: Context,observer: (String) -> Unit) {
             val textInputLayout = TextInputLayout(context)

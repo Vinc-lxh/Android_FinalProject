@@ -11,7 +11,7 @@
     <string name="menu_album">Albums</string>
     <string name="menu_photo">Photos</string>
     <string name="menu_profile">Profile</string>
-    <string name="menu_settings">Settings</string>
+    <string name="menu_tips">Tips</string>
 
     <string name="lorem_ipsum_title">Lorem Ipsum"</string>
     <string name="lorem_ipsum">Lorem Ipsum is simply placeholder text of the printing and
