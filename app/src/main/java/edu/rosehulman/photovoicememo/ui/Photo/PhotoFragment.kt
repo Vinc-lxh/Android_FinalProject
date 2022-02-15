@@ -109,13 +109,16 @@ class PhotoFragment : Fragment() {
 
     private fun settupRecycleViewSwipeForDelete() {
         val touchHelperCallback: ItemTouchHelper.SimpleCallback =
-            object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
                 val deleteIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_delete_24)
+                val editIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_edit_24)
                 val intrinsicWidth = deleteIcon?.intrinsicWidth
                 val intrinsicHeight = deleteIcon?.intrinsicHeight
                 val background = ColorDrawable()
+                val backgroundLeft = ColorDrawable()
                 val clearPaint = Paint().apply { xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR) }
-                val backgroundColor = Color.parseColor("#f44336")
+                val backgroundColor = Color.parseColor(getString(R.string.colorred))
+                val backgroundColor2 = Color.parseColor(getString(R.string.colorBlue))
                 override fun onMove(
                     recyclerView: RecyclerView,
                     viewHolder: RecyclerView.ViewHolder,
@@ -125,8 +128,16 @@ class PhotoFragment : Fragment() {
                 }
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                    Log.d(Constants.TAG,"swipeed")
-                    adapter.deletePhoto(viewHolder.absoluteAdapterPosition)
+                    if(direction == ItemTouchHelper.RIGHT){
+//                        model.updatePos(viewHolder.absoluteAdapterPosition)
+                        adapter.updateCurrentPos(viewHolder.absoluteAdapterPosition)
+                        setFragmentResult("requestKey", bundleOf("bundleKey" to adapter.getCurrentPhoto().photo,"isedit" to true))
+                        Log.d(Constants.TAG,"finished and navigate")
+                        findNavController().navigate(R.id.nav_camera)
+                    }else{
+                        Log.d(Constants.TAG,"swipeed")
+                        adapter.deletePhoto(viewHolder.absoluteAdapterPosition)
+                    }
                 }
 
                 override fun onChildDraw(
@@ -137,7 +148,7 @@ class PhotoFragment : Fragment() {
                     dY: Float,
                     actionState: Int,
                     isCurrentlyActive: Boolean
-                ) {storageUriStringInFragment
+                ) {
 
                     val itemView = viewHolder.itemView
                     val itemHeight = itemView.bottom - itemView.top
@@ -154,6 +165,21 @@ class PhotoFragment : Fragment() {
                     background.setBounds(itemView.right + dX.toInt(), itemView.top, itemView.right, itemView.bottom)
                     background.draw(c)
 
+                    backgroundLeft.color= backgroundColor2
+                    backgroundLeft.setBounds(itemView.left, itemView.top, itemView.left + dX.toInt(), itemView.bottom)
+                    backgroundLeft.draw(c)
+
+                    // Calculate position of delete icon
+                    val editIconTop = itemView.top + (itemHeight - intrinsicHeight!!) / 2
+                    val editIconMargin = (itemHeight - intrinsicHeight) / 2
+                    val editIconLeft = itemView.left + editIconMargin
+                    val editIconRight = itemView.left + editIconMargin + intrinsicWidth!!
+                    val editIconBottom = editIconTop + intrinsicHeight
+
+                    // Draw the delete icon
+                    editIcon?.setBounds(editIconLeft, editIconTop, editIconRight, editIconBottom)
+                    editIcon?.draw(c)
+
                     // Calculate position of delete icon
                     val deleteIconTop = itemView.top + (itemHeight - intrinsicHeight!!) / 2
                     val deleteIconMargin = (itemHeight - intrinsicHeight) / 2
@@ -164,6 +190,7 @@ class PhotoFragment : Fragment() {
                     // Draw the delete icon
                     deleteIcon?.setBounds(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom)
                     deleteIcon?.draw(c)
+
 
                     super.onChildDraw(
                         c,
@@ -529,7 +556,10 @@ private fun addPhotoFromUri(uri: Uri?,observer: () -> Unit) {
         }
 
         fun getCurrentAlbum() = model.getCurrentAlbum()
-
+        fun getCurrentPhoto() = model.getCurrentPhoto()
+        fun updateCurrentPos(position: Int) {
+            model.updatePos(position)
+        }
 
         inner class PhotoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -549,13 +579,13 @@ private fun addPhotoFromUri(uri: Uri?,observer: () -> Unit) {
                         }
                     )
                 }
-                itemView.setOnLongClickListener{
-                    model.updatePos(absoluteAdapterPosition)
-                    fragment.setFragmentResult("requestKey", bundleOf("bundleKey" to model.getCurrentPhoto().photo,"isedit" to true))
-                    Log.d(Constants.TAG,"finished and navigate")
-                    fragment.findNavController().navigate(R.id.nav_camera)
-                    true
-                }
+//                itemView.setOnLongClickListener{
+////                    model.updatePos(absoluteAdapterPosition)
+////                    fragment.setFragmentResult("requestKey", bundleOf("bundleKey" to model.getCurrentPhoto().photo,"isedit" to true))
+////                    Log.d(Constants.TAG,"finished and navigate")
+////                    fragment.findNavController().navigate(R.id.nav_camera)
+//                    true
+//                }
                 playButton.setOnClickListener {
                     model.updatePos(absoluteAdapterPosition)
                     if (fragment.isPlaying) {
