@@ -17,6 +17,7 @@ import android.view.ViewGroup
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat.invalidateOptionsMenu
 import androidx.core.content.ContextCompat
@@ -36,6 +37,8 @@ import coil.transform.CircleCropTransformation
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.button.MaterialButton
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.leinardi.android.speeddial.SpeedDialView
 import edu.rosehulman.photovoicememo.BuildConfig
 import edu.rosehulman.photovoicememo.R
@@ -90,9 +93,15 @@ class PhotoFragment : Fragment() {
             )
         )
 
+        setActivityTitle(adapter.getCurrentAlbum().name)
+
+
         settupRecycleViewSwipeForDelete()
         initializeButtons()
         return binding.root
+    }
+    fun Fragment.setActivityTitle(title: String) {
+        (activity as AppCompatActivity?)?.supportActionBar?.title = title
     }
 
     private fun settupRecycleViewSwipeForDelete() {
@@ -471,6 +480,8 @@ class PhotoFragment : Fragment() {
             val toast = Toast.makeText(fragment.context,"delete photoVoice successfully", Toast.LENGTH_SHORT)
             toast.show()
         }
+
+        fun getCurrentAlbum() = model.getCurrentAlbum()
 
 
         inner class PhotoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

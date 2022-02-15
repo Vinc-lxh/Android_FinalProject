@@ -15,12 +15,14 @@
     </style>
 
     <style name="Theme.PhotoVoiceMemo.NoActionBar">
-        <item name="fontFamily">@font/aclonica</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.PhotoVoiceMemo.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="Theme.PhotoVoiceMemo.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="fontFamily">@font/aclonica</item>
+
+    </style>
 
     <style name="Theme.PhotoVoiceMemo.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

@@ -9,7 +9,7 @@
 
     <TextView
         android:id="@+id/topTextView"
-        android:layout_width="wrap_content"
+        android:layout_width="140dp"
         android:layout_height="wrap_content"
         android:text="Photo"
         android:textSize="42sp"
@@ -23,7 +23,7 @@
         />
     <TextView
         android:id="@+id/middleTextView"
-        android:layout_width="wrap_content"
+        android:layout_width="140dp"
         android:layout_height="wrap_content"
         android:text="Voice"
         android:textSize="42sp"
@@ -37,7 +37,7 @@
         />
     <TextView
         android:id="@+id/bottomTextView"
-        android:layout_width="wrap_content"
+        android:layout_width="145dp"
         android:layout_height="wrap_content"
         android:text="Memo"
         android:textSize="42sp"
