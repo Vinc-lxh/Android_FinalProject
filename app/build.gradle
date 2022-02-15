@@ -35,13 +35,7 @@ android {
 }
 
 dependencies {
-//    def nav_version = "2.4.0"
-//
-//    // Java language implementation
-//    implementation "androidx.navigation:navigation-fragment:$nav_version"
-//    implementation "androidx.navigation:navigation-ui:$nav_version"
-//    // material design
-//    implementation 'com.google.android.material:material:1.2.0-alpha04'
+
     implementation "com.google.android.gms:play-services-location:17.0.0"
 
     implementation "com.leinardi.android:speed-dial:2.0.0"

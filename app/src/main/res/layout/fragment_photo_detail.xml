@@ -23,10 +23,8 @@
         android:layout_above="@id/detail_caption_detail"
         android:layout_alignParentTop="true"
         android:layout_centerVertical="true"
-        android:layout_marginTop="3dp"
         android:contentDescription="Image"
-        android:scaleType="centerInside"
-        android:src="@drawable/avatar_10" />
+        android:scaleType="fitXY"/>
 
     <TextView
         android:id="@+id/detail_caption_detail"
