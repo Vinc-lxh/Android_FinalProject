@@ -286,7 +286,8 @@ class CameraFragment : Fragment() {
                 }else{
                     photoViewModel.addPhotoVoice(PhotoVoice(photo = storageUriStringInFragment,voice = "", albumID = photoViewModel.getCurrentAlbum().id, location = loc))
                     }
-                navController.navigate(R.id.nav_photo)
+                navController.popBackStack()
+                //navController.navigate(R.id.nav_photo)
             }
             else {
 //                loc= (activity as MainActivity).getLastLocation()
@@ -296,7 +297,8 @@ class CameraFragment : Fragment() {
 //                loc = (activity as MainActivity).outputText
 //                Log.d(Constants.TAG, "location is $loc")
                 uploadRecording()
-                navController.navigate(R.id.nav_photo)
+                navController.popBackStack()
+                //navController.navigate(R.id.nav_photo)
             }
         }
         binding.recordButton.setOnClickListener{
