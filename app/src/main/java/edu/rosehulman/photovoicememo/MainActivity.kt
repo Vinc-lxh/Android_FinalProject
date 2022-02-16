@@ -100,9 +100,11 @@ class MainActivity : AppCompatActivity() {
                 }
                 val userModel = ViewModelProvider(this).get(UserViewModel::class.java)
                 userModel.getOrMakeUser{
+                    Log.d(Constants.TAG,"User: 103")
                     if(userModel.hasCompletedSetup()){
                         val id = findNavController(R.id.nav_host_fragment_content_main).currentDestination!!.id
                         if (id == R.id.nav_splash) {
+                            navController.popBackStack()
                             findNavController(R.id.nav_host_fragment_content_main)
                                 .navigate(R.id.nav_album)
                         }

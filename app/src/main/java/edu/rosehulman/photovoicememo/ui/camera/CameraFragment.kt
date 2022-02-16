@@ -271,7 +271,8 @@ class CameraFragment : Fragment() {
                 ) { dialog, which ->
                     stopRecording()
                     uploadRecording()
-                    navController.navigate(R.id.nav_photo)
+                    navController.popBackStack()
+                    //navController.navigate(R.id.nav_photo)
                     isRecording = false
                 }
                 alertDialog.setNegativeButton("CANCEL", null)

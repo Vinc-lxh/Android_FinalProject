@@ -34,7 +34,7 @@ class ProfileFragment : Fragment() {
         savedInstanceState: Bundle?
         ): View {
             profileViewModel =
-                ViewModelProvider(this).get(UserViewModel::class.java)
+                ViewModelProvider(requireActivity()).get(UserViewModel::class.java)
     
             binding = FragmentProfileBinding.inflate(inflater, container, false)
 
@@ -54,8 +54,8 @@ class ProfileFragment : Fragment() {
 
                 }
              binding.logoutButton.setOnClickListener{
-                    Firebase.auth.signOut()
-
+                 profileViewModel.resetUser()
+                 Firebase.auth.signOut()
                 }
             setHasOptionsMenu(true)
             updateView()
